@@ -1,7 +1,7 @@
 <template>
   <div class="d-flex flex-column justify-content-center align-items-center">
     <img
-      alt="Vue logo"
+      alt="Crm logo"
       src="../assets/crm_icon.png"
       class="login-crm-img mb-4"
     />
@@ -13,6 +13,7 @@
             id="input-crmid"
             v-model="crmid"
             placeholder="아이디를 입력하세요"
+            autocomplete="username"
             required
           ></b-form-input>
         </b-form-group>
@@ -22,6 +23,7 @@
             v-model="password"
             type="password"
             placeholder="비밀번호를 입력하세요"
+            autocomplete="current-password"
             required
           ></b-form-input>
         </b-form-group>
@@ -68,7 +70,6 @@ export default {
 
         // 라우터 이동 (HomeView로)
         console.log(response);
-        alert("로그인 성공")
         this.$router.push({ name: "Home" }); // 또는 this.$router.push('/')
       } catch (error) {
         console.log(error);
