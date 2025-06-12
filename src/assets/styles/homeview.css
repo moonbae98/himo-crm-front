@@ -1,0 +1,236 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.crm-popup {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  width: 400px;
+  height: auto;
+  max-height: 80vh;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  z-index: 9999;
+  animation: popup-fade-in 0.3s;
+}
+
+.crm-popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 12px 12px 0 0;
+  border-bottom: 1px solid #eee;
+  font-weight: bold;
+  background: #f8f9fa;
+}
+
+.crm-popup-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+}
+
+@keyframes popup-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.c-buthover {
+  cursor: pointer;
+  text-decoration: underline;
+  color: blue;
+}
+.c-buthover:hover {
+  transition: color 0.3s ease;
+  color: darkblue;
+}
+
+.crmlog tbody tr {
+  height: 10px !important;
+}
+
+.homectrbox {
+  background: #f8f9fa;
+  border: 1.5px solid #d1d5db;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  padding: 24px 20px 20px 20px;
+  width: 320px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.homectrbox-title {
+  color: #1976d2;
+  font-weight: bold;
+  font-size: 1.25rem;
+  text-align: center;
+  margin-bottom: 18px;
+  letter-spacing: 1px;
+}
+
+.homectrboxinfo {
+  background: #fff;
+  border-radius: 8px;
+  padding: 16px 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+  margin-bottom: 18px;
+}
+
+.homectrbox-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.homectrbox-label {
+  font-weight: 500;
+  color: #444;
+  min-width: 80px;
+}
+
+.homectrbox-value {
+  color: #1976d2;
+  font-weight: 600;
+}
+
+.homectrbox-btn-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+  justify-content: space-between;
+}
+
+.homectrboxinfobtn {
+  flex: 1 1 48%;
+  background: #e3eafc;
+  border: 1px solid #b6c8f5;
+  border-radius: 6px;
+  padding: 8px 0;
+  color: #1976d2;
+  font-weight: 500;
+  cursor: pointer;
+  margin-bottom: 6px;
+  transition: background 0.15s;
+}
+.homectrboxinfobtn:hover {
+  background: #d0dffd;
+}
+
+.homectrboxinfobtn.active {
+  background-color: #1976d2;
+  color: #fff;
+  border: 1px solid #1976d2;
+}
+
+.homectrbox-endbtn {
+  margin-top: 5px;
+  width: 40%;
+  font-weight: bold;
+  letter-spacing: 1px;
+  padding: 5px 0;
+  border-radius: 6px;
+}
+
+.modern-card {
+  border-radius: 18px;
+  box-shadow: 0 2px 12px 0 rgba(60, 60, 60, 0.08);
+  padding: 10px 10px 10px 10px;
+  height: 100%;
+}
+
+.phone-flex-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 22px;
+  background: #fff;
+  border-radius: 8px;
+  padding: 14px 18px;
+  box-shadow: 0 1px 4px 0 rgba(80, 120, 180, 0.08);
+}
+
+.label-text {
+  min-width: 80px;
+  font-weight: 600;
+  color: #333;
+}
+
+.phone-input {
+  min-width: 170px;
+  max-width: 220px;
+  height: 36px;
+  font-size: 1rem;
+  padding: 4px 12px;
+  border-radius: 6px;
+  border: 1px solid #d0d7de;
+  background: #f9f9fb;
+}
+
+.call-btn {
+  min-width: 90px;
+  font-weight: 500;
+  border-radius: 6px;
+  transition: box-shadow 0.2s;
+}
+.call-btn:active {
+  box-shadow: 0 0 0 2px #b2f5ea;
+}
+
+/* 한 줄에 두 쌍씩 라벨+입력 정렬 */
+.form-pair-table {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.form-pair-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.form-pair-row label {
+  width: 20%;
+  font-size: 14px;
+  text-align: right;
+  font-weight: 500;
+  color: #444;
+  margin-bottom: 0;
+}
+.slim-input {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 200px;
+  height: 25px;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 5px;
+  background: #f5f7fa;
+  border: 1px solid #e2e8f0;
+}
+.slim-textarea {
+  min-height: 32px;
+  max-height: 48px;
+  resize: none; /* 크기 조절 비활성화 */
+  font-size: 12px;
+  padding: 6px 10px;
+}

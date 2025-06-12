@@ -27,7 +27,23 @@
             required
           ></b-form-input>
         </b-form-group>
-        <b-button type="submit" variant="primary" block>로그인</b-button>
+        <div class="row d-flex justify-content-between mb-2">
+          <div class="col-auto pr-0">
+            <b-button type="submit" variant="primary" block style="height: 100%"
+              >로그인</b-button
+            >
+          </div>
+          <div class="col-auto">
+            <b-form-input
+              id="input-extNo"
+              v-model="extNo"
+              placeholder="내선번호"
+              autocomplete="off"
+              required
+              style="width: 120px"
+            ></b-form-input>
+          </div>
+        </div>
       </b-form>
       <div v-if="error" class="text-danger text-center mt-2">{{ error }}</div>
     </b-card>
@@ -36,6 +52,7 @@
 
 <script>
 import axios from "axios";
+
 
 import {
   BCard,
@@ -58,6 +75,7 @@ export default {
     return {
       crmid: "",
       password: "",
+      extNo: "",
       error: "",
     };
   },
@@ -66,15 +84,44 @@ export default {
       try {
         const crmid = this.crmid;
         const password = this.password;
-        const response = await axios.post("./login", { crmid, password });
+        const extNo = this.extNo;
+        const response = await axios.post("./login", {
+          crmid,
+          password,
+          extNo,
+        });
 
-        // 라우터 이동 (HomeView로)
-        console.log(response);
-        this.$router.push({ name: "Home" }); // 또는 this.$router.push('/')
+        console.log("로그인 성공:", response.data);
+
+        localStorage.setItem(
+          "loginInfo",
+          JSON.stringify({
+            nodejs_connector_url: "http://122.49.74.230:8087",
+            userid: "test9477",
+            exten: "9477",
+            company_id: "himo", // 회사 ID
+            passwd: "user!2322",
+            first_status: "2",
+            from_ui:"API",
+          })
+        );
+
+        // 로그인 성공: 홈으로 이동
+        this.$router.push({ name: "Home" });
       } catch (error) {
+        // 서버에서 내려준 code로 분기
+        const code = error.response?.data?.code;
+        if (code === "INVALID_USER") {
+          alert("아이디 또는 비밀번호가 잘못되었습니다.");
+          this.error = "로그인에 실패했습니다. 아이디와 비밀번호를 확인하세요.";
+        } else if (code === "INVALID_EXTNO") {
+          alert("내선번호가 일치하지 않습니다.");
+          this.error = "내선번호를 다시 확인해 주세요.";
+        } else {
+          alert("알 수 없는 오류가 발생했습니다.");
+          this.error = "로그인에 실패했습니다. 다시 시도해 주세요.";
+        }
         console.log(error);
-        alert("아이디 혹은 비밀번호가 잘못되었습니다.")
-        this.error = "로그인에 실패했습니다. 아이디와 비밀번호를 확인하세요.";
       }
     },
   },
