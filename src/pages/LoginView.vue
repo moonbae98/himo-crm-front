@@ -97,7 +97,7 @@ export default {
           "loginInfo",
           JSON.stringify({
             nodejs_connector_url: "http://122.49.74.230:8087",
-            userid: "test9477",
+            userid: "test9477", // 사용자 ID
             exten: "9477",
             company_id: "himo", // 회사 ID
             passwd: "user!2322",

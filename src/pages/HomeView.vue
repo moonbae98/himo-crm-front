@@ -1,9 +1,7 @@
 <style src="../assets/styles/homeview.css"></style>
 
-
-
 <template>
-<!-- homeview.css 에 css있습니다. -->
+  <!-- homeview.css 에 css있습니다. -->
 
   <div class="crm-home-background">
     <b-container fluid>
@@ -12,7 +10,7 @@
         <b-col cols="12" md="4" lg="4" class="text-center">
           <b-card style="width: 100%; height: 100%; display: flex">
             <div class="homectrbox">
-              <h3 class="homectrbox-title">{{ user?.user.deptNm }}</h3>
+              <h3 class="homectrbox-title">{{ user?.extNo.deptNm }}</h3>
               <div class="homectrboxinfo">
                 <div class="homectrbox-row">
                   <span class="homectrbox-label">전화번호</span>
@@ -120,8 +118,11 @@
               placeholder="전화번호를 입력하세요"
               class="mt-2 mb-2 w-50 mx-auto"
             />
-            <b-button class="p-1" variant="success" @click="showCrmInfo"
-              >CRM 팝업 열기</b-button
+            <b-button
+              class="p-1"
+              variant="danger"
+              @click="requestNotificationPermission"
+              >알림권한요청하기</b-button
             >
           </b-card>
 
@@ -150,6 +151,7 @@
               :items="todayCallList"
               :fields="calllistfields"
               @row-clicked="c_info_retrieve"
+              sticky-header="400px"
               striped
               hover
               bordered
@@ -243,12 +245,10 @@
             </div>
 
             <textarea
-              v-model="remark"
               rows="2"
               :value="customerInfo ? customerInfo.asRemark : ''"
               class="form-control mb-2 no-resize slim-textarea"
-              placeholder="메모를 입력하세요"
-            />
+              placeholder="메모를 입력하세요"/>
 
             <div class="form-pair-table">
               <div class="form-pair-row">
@@ -271,13 +271,26 @@
                 <label>최종a/s명 :</label>
                 <input readonly class="slim-input" />
               </div>
+              <input
+                  v-model="dangzicextno"
+                  type="text"
+                />
+              <div class="form-pair-row">
+                <button 
+                class ='dolbtn' 
+                :class="{ active: activeDangzic === 'A' }"
+                @click="dolbtn">당직자로그인</button>
+                <button 
+                :class="{ active: activeDangzic === 'N' }"
+                class ='dolobtn'
+                @click="dolobtn" >당직자로그아웃</button>
+              </div>
             </div>
           </b-card>
         </b-col>
       </b-row>
 
-      
-       <!-- IPCC 시스템 이것은 건들지 마시오!-->
+      <!-- IPCC 시스템 이것은 건들지 마시오!-->
       <b-row class="mt-3" v-show="showIpcc">
         <b-col cols="12">
           <b-card style="width: 100%; height: 100%">
@@ -314,44 +327,8 @@
         </b-col>
       </b-row>
     </b-container>
-
-
-    <!-- CRM 팝업 -->
-    <div v-if="showCrmPopup" class="crm-popup">
-      <div class="crm-popup-header">
-        <span>CRM infomation</span>
-        <b-button
-          class="p-1"
-          size="sm"
-          variant="link"
-          @click="showCrmPopup = false"
-          >✕</b-button
-        >
-      </div>
-      <div class="crm-popup-body">
-        <div v-if="crminfo">
-          <p style="border: 1px">고객코드: {{ crminfo.mbsNo }}</p>
-          <p style="border: 1px">이름: {{ crminfo.mbsViewNm }}</p>
-          <div style="display: flex">
-            <p style="border: 1px">전화번호:</p>
-            <p class="c-buthover" style="border: 1px" @click="c_info_retrieve2">
-              {{ crminfo.hpNo }}
-            </p>
-          </div>
-        </div>
-        <div v-else>
-          <p>저장되어있지 않은 고객 번호입니다.</p>
-          <p>전화번호: {{ telnumber }}</p>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
-
-
-
-
-
 
 <script>
 import {
@@ -388,7 +365,6 @@ export default {
       user: null,
       telnumber: null,
       logoutshowConfirm: false,
-      showCrmPopup: false,
       crminfo: null,
       crmitems: [],
       todayCallList: [],
@@ -397,7 +373,10 @@ export default {
       phoneNumber: "",
       remark: "",
       activeMenu: "",
-      callStatus:"",
+      activeDangzic: "",
+      dangzicextno: "",
+      callStatus: "",
+      callTime: "",
       ipccFrameUrl: "/himo-crm1/resources/vue/socket_frame.html",
       ipccLoginInfo: null,
       calllistfields: [
@@ -447,12 +426,14 @@ export default {
   },
 
   async mounted() {
-    const response = await axios.get("./session");
-    console.log("세션 정보:", response.data);
     this.loadIPCCInfoFromStorage();
+    const response = await axios.get("./session");
+    console.log("세션정보", response.data);
     this.user = response.data;
     await this.fetchTodayCallList();
-    window.parseLogin = function () {};
+    window.parseLogin = (data1,data2,data3,data4,data5,data6,data8) => {
+      this.activeDangzic = data8;
+    };
     window.parseMemberStatus = (statusCode) => {
       if (statusCode === "0" || statusCode === 0) {
         this.activeMenu = "mbtn1";
@@ -464,23 +445,42 @@ export default {
         this.activeMenu = "mbtn4";
       }
     };
-    window.parseCallEvent = (kind, callerNumber,data3) => {
+    window.parseCallEvent = (
+      kind,
+      callerNumber,
+      data2,
+      data3,
+      data4,
+      data5,
+      data6,
+      callTime
+    ) => {
+      //전화받기
       if (kind === "IR") {
         this.telnumber = callerNumber;
-        this.sendCallEventToServer(callerNumber);
-        this.showCrmInfo();
+        this.callTime = callTime;
+        this.sendCallEventToServer(callerNumber, callTime);
+        this.showCrmInfo(callerNumber, callTime);
       }
-      if (kind === "OR") {
+      if (kind === "ID") {
+        this.callTime = callTime;
         this.telnumber = callerNumber;
-        this.sendCallEventToServer(data3);
-        this.showCrmInfo();
+        this.receiveCall(callerNumber, callTime);
       }
-      // if(kind === "OD"){
-      //   console.log("발신전화가 종료되었습니다.");
-      // }
+      //전화걸기
+      if (kind === "OR") {
+        this.telnumber = data2;
+        this.sendCallEventToServer(data2, callTime);
+        this.showCrmInfo(data2, callTime);
+      }
+      if (kind === "OD") {
+        this.receiveCall(data2, callTime);
+      }
     };
     window.logoutfromserver = function () {};
-    window.parseHangupEvent = function () {};
+    window.parseHangupEvent = function () {
+    };
+    window.parsePhoneStatus = function () {};
   },
 
   computed: {
@@ -490,8 +490,12 @@ export default {
   },
 
   methods: {
+    requestNotificationPermission() {
+      Notification.requestPermission();
+    },
     /*--------------------------------------------------- IPCC관련 함수들---------------------------------------------------*/
 
+    // IPCC 로그인 정보를 로컬 스토리지에서 불러옵니다.
     loadIPCCInfoFromStorage() {
       const loginInfo = localStorage.getItem("loginInfo");
       if (loginInfo) {
@@ -503,6 +507,7 @@ export default {
       }
     },
 
+    // IPCC 프레임을 새로고침합니다.
     reloadIframe() {
       const iframe = this.$refs.ipccFrame;
       if (iframe) {
@@ -511,6 +516,7 @@ export default {
       }
     },
 
+    // IPCC 프레임이 로드되면 연결을 시도합니다.
     onIpccFrameLoad() {
       if (this.ipccLoginInfo) {
         setTimeout(() => {
@@ -519,6 +525,7 @@ export default {
       }
     },
 
+    // IPCC 서버에 연결합니다.
     connectToIPCC() {
       if (!this.ipccLoginInfo) return;
       try {
@@ -544,6 +551,7 @@ export default {
       }
     },
 
+    // 전화 걸기 함수
     makeCall() {
       if (!this.phoneNumber?.trim()) {
         alert("전화번호를 입력하세요.");
@@ -557,15 +565,14 @@ export default {
       ) {
         // CID 입력란이 있다면 추가
         const cid = this.cid ? this.cid : "";
-        //this.activeMenu = "mbtn2"; // 상담중 상태로 변경
         const command = `CLICKDIAL|${cid},${this.phoneNumber}`;
         iframe.contentWindow.SendCommand2Socket(`CMD|${command}`);
-        alert(`${this.phoneNumber}로 전화걸기 요청`);
       } else {
         alert("IPCC 프레임이 준비되지 않았거나, 통신 함수가 없습니다.");
       }
     },
 
+    // 상담 상태를 설정하는 함수
     setCallStatus(menuId, statusCode) {
       this.activeMenu = menuId;
       const iframe = this.$refs.ipccFrame;
@@ -584,6 +591,7 @@ export default {
       }
     },
 
+    // 통화 받기기 함수
     hangupCall() {
       const iframe = this.$refs.ipccFrame;
       if (
@@ -599,6 +607,7 @@ export default {
       }
     },
 
+    // 전화 종료 함수
     hangdown() {
       const iframe = this.$refs.ipccFrame;
       if (
@@ -626,14 +635,41 @@ export default {
         alert("IPCC 프레임이 준비되지 않았거나, 통신 함수가 없습니다.");
       }
     },
+    dolbtn(){
+      this.activeDangzic = "A";
+      const iframe = this.$refs.ipccFrame;
+      if (
+        iframe &&
+        iframe.contentWindow &&
+        typeof iframe.contentWindow.SendCommand2Socket === "function"
+      ) {
+        iframe.contentWindow.SendCommand2Socket(`CMD|FORWARDING|${this.ipccLoginInfo.exten},${this.dangzicextno},A`);
+      } else {
+        alert("IPCC 프레임이 준비되지 않았거나, 통신 함수가 없습니다.");
+      }
+    },
+    dolobtn(){
+      this.activeDangzic = "N";
+      const iframe = this.$refs.ipccFrame;
+      if (
+        iframe &&
+        iframe.contentWindow &&
+        typeof iframe.contentWindow.SendCommand2Socket === "function"
+      ) {
+        iframe.contentWindow.SendCommand2Socket(`CMD|FORWARDING|${this.ipccLoginInfo.exten},${this.dangzicextno},N`);
+      } else {
+        alert("IPCC 프레임이 준비되지 않았거나, 통신 함수가 없습니다.");
+      }
+    },
 
-    async sendCallEventToServer(phoneNumber) {
+    async sendCallEventToServer(phoneNumber, callTime) {
       try {
         // 필요한 데이터 구성 (예: 내선, 상담자, 전화번호 등)
         const payload = {
           callPhoneno: phoneNumber,
+          callTime: callTime, // 통화 시간
           userId: this.user?.user?.crmid, // 상담원 ID
-          callDept: this.user?.user?.bizDiv, // 상담원 부서서
+          callDept: this.user?.extNo?.deptNm, // 상담원 부서
           callExtNo: this.user?.extNo?.extNo, // 내선번호
         };
         await axios.post("./call-event", payload);
@@ -643,14 +679,15 @@ export default {
         console.error("전화 이벤트 서버 전송 실패:", e);
       }
     },
-    // async missedCall(phoneNumber){
-    //   try {
-    //     await axios.get("./missed-call",{
-    //       params: { extNo: this.user?.extNo?.extNo }
-    //     });
-    //   } catch (error) {
-    //     console.error("Failed to handle missed call:", error);
-    //   }
+    async receiveCall(phoneNumber, callTime) {
+      try {
+        await axios.get("./receive-call", {
+          params: { callPhoneno: phoneNumber, callTime: callTime },
+        });
+        await this.fetchTodayCallList();
+      } catch (error) {
+        console.error("Failed to handle missed call:", error);
+      }
     },
 
     /*----------------------------------------------------------------------------------------------------------------*/
@@ -670,17 +707,18 @@ export default {
       }
     },
 
-    async showCrmInfo() {
-      if (!this.telnumber) {
-        alert("전화번호를 입력하세요!");
-        return;
-      }
-      this.showCrmPopup = true;
+    async showCrmInfo(callPhoneno,  callTime) {
+      
       try {
-        const response = await axios.post("./crm-info", {
-          hpNo: this.telnumber,
-        });
-        this.crminfo = response.data;
+        // localStorage에 전화번호 저장
+        localStorage.setItem("hpNo", callPhoneno);
+        localStorage.setItem("callDate", callTime);
+
+        window.open(
+          "/himo-crm1/crm-popup",
+          "crmPopup",
+          "width=500,height=400,left=100,top=100"
+        );
       } catch (error) {
         console.error("Failed to fetch CRM info:", error);
       }
@@ -699,8 +737,9 @@ export default {
 
     async c_info_retrieve2() {
       try {
+        const hpNo = this.crminfo?.hpNo || this.telnumber;
         const response = await axios.post("./c_info_retrieve", {
-          hpNo: this.telnumber,
+          hpNo: hpNo,
         });
         this.crmitems = response.data;
       } catch (error) {

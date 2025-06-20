@@ -99,7 +99,7 @@ function ConnectServer(nodejs_connector_url, l_company_id, l_userid, exten, pass
         });
         socket.on('svcmsg_relogin', function() {
             //재로긴을 하라고하거나 자동으로 재로긴한다
-            alert("[socket_frame.js][ConnectServer][svcmsg_relogin]재로긴하겠습니다.");
+            alert("재로그인하겠습니다.");
             ConnectServer(nodejs_connector_url,company_id,userid,exten,passwd,first_status,from_ui);
         });
         
@@ -368,11 +368,12 @@ function parseMessage(msg) {
 		    parseNodeSvc(kind);
     } else if(event == "BYE") {
         if(kind == "SAME_UID") {
-        		alert("[socket_frame.js][parseMessage]다른 컴퓨터에서 같은 아이디로 로긴되어서 서버와 끊김");
+        		//alert("[socket_frame.js][parseMessage]다른 컴퓨터에서 같은 아이디로 로긴되어서 서버와 끊김");
+        		alert("다른 PC에서 로그인되어 있어, 현재 접속을 종료합니다.");
         		parent.logoutfromserver();
 			      socket.disconnect();
         } else if(kind == "SAME_PID") {
-        		alert("[socket_frame.js][parseMessage]다른 컴퓨터에서 같은 내선으로로 로긴되어서 서버와 끊김");
+        		alert("다른 PC에서 내선번호를 등록하여, 현재 접속을 종료합니다.");
         		parent.logoutfromserver();
 			      socket.disconnect();
         }

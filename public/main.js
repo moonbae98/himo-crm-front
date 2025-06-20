@@ -845,7 +845,7 @@ function logoutUI() {
     MemberStatus = "";
 }
 function logout(cmd) {
-    var rtn = confirm("22로그아웃하시겠습니까?");
+    var rtn = confirm("로그아웃하시겠습니까?");
 
     if(rtn == true) {
         SendCommand(cmd);

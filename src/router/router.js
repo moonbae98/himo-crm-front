@@ -1,11 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../pages/HomeView.vue'
 import LoginView from '../pages/LoginView.vue'
+import CrmPopupView from '../components/CrmPopup.vue'
 import axios from 'axios'
 
 const routes = [
   { path: '/', name: 'Login', component: LoginView },
-  { path: '/Home', name: 'Home', component: HomeView, meta: { requiresAuth: true } }
+  { path: '/Home', name: 'Home', component: HomeView, meta: { requiresAuth: true } },
+  { path: '/crm-popup', name: 'CrmPopup', component: CrmPopupView, meta: { requiresAuth: true } }
 ]
 const router = createRouter({
   history: createWebHistory('/himo-crm1/'),
