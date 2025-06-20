@@ -240,7 +240,11 @@
                   class="slim-input"
                 />
                 <label>통화지점 :</label>
-                <input class="slim-input" />
+                <input
+                  readonly
+                  :value="customerInfo ? customerInfo.deptName : ''"
+                  class="slim-input"
+                />
               </div>
             </div>
 
@@ -271,10 +275,14 @@
                 <label>최종a/s명 :</label>
                 <input readonly class="slim-input" />
               </div>
+              <div class="form-pair-row">
+                <label>당직자 내선번호 :</label>
               <input
                   v-model="dangzicextno"
+                  class="slim-input"
                   type="text"
                 />
+              </div>
               <div class="form-pair-row">
                 <button 
                 class ='dolbtn' 
@@ -428,7 +436,6 @@ export default {
   async mounted() {
     this.loadIPCCInfoFromStorage();
     const response = await axios.get("./session");
-    console.log("세션정보", response.data);
     this.user = response.data;
     await this.fetchTodayCallList();
     window.parseLogin = (data1,data2,data3,data4,data5,data6,data8) => {
@@ -461,6 +468,9 @@ export default {
         this.callTime = callTime;
         this.sendCallEventToServer(callerNumber, callTime);
         this.showCrmInfo(callerNumber, callTime);
+        setTimeout(() => {
+        this.homeinfo_retrieve(callerNumber, callTime);
+        }, 1500);
       }
       if (kind === "ID") {
         this.callTime = callTime;
@@ -472,6 +482,9 @@ export default {
         this.telnumber = data2;
         this.sendCallEventToServer(data2, callTime);
         this.showCrmInfo(data2, callTime);
+        setTimeout(() => {
+        this.homeinfo_retrieve(data2, callTime);
+        }, 500);
       }
       if (kind === "OD") {
         this.receiveCall(data2, callTime);
@@ -591,7 +604,7 @@ export default {
       }
     },
 
-    // 통화 받기기 함수
+    // 통화 받기 함수
     hangupCall() {
       const iframe = this.$refs.ipccFrame;
       if (
@@ -662,6 +675,7 @@ export default {
       }
     },
 
+
     async sendCallEventToServer(phoneNumber, callTime) {
       try {
         // 필요한 데이터 구성 (예: 내선, 상담자, 전화번호 등)
@@ -670,6 +684,7 @@ export default {
           callTime: callTime, // 통화 시간
           userId: this.user?.user?.crmid, // 상담원 ID
           callDept: this.user?.extNo?.deptNm, // 상담원 부서
+          locSaupjang: this.user?.extNo?.locSaupjang, // 상담원 부서 번호
           callExtNo: this.user?.extNo?.extNo, // 내선번호
         };
         await axios.post("./call-event", payload);
@@ -690,6 +705,20 @@ export default {
       }
     },
 
+    async homeinfo_retrieve(callPhoneno,callTime) {
+      await axios
+          .post("./crm-home-info", {
+            hpNo: callPhoneno,
+            callDate: callTime,
+          })
+          .then((response) => {
+            this.customerInfo = response.data;
+          })
+          .catch((error) => {
+            console.error("CRM 정보 조회 실패:", error);
+          });
+    },
+
     /*----------------------------------------------------------------------------------------------------------------*/
 
     sha512Hash(password) {
@@ -707,7 +736,7 @@ export default {
       }
     },
 
-    async showCrmInfo(callPhoneno,  callTime) {
+    showCrmInfo(callPhoneno,  callTime) {
       
       try {
         // localStorage에 전화번호 저장

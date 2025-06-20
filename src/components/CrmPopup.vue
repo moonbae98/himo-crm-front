@@ -1,7 +1,7 @@
 <!-- CrmPopup.vue -->
 <template>
   <div>
-    <div class v-if="crminfo">
+    <div class v-if="crminfo.callCustcode">
       <div class="crmpopupinfo">
         <p class="popuptextbox">
           <strong>고객명:</strong> {{ crminfo.callCustname }}
@@ -31,8 +31,27 @@
       </div>
     </div>
     <div v-else>
-      <p>저장되어있지 않은 고객 번호입니다.</p>
-      <p>전화번호: {{ hpNo }}</p>
+      <div class="crmpopupinfo">
+        <p class="popuptextbox">
+          <strong>고객 정보 없음</strong> 
+        </p>
+        <p class="popuptextbox">
+          <strong>일자:</strong> {{ crminfo.callDate }}
+        </p>
+        <div style="display: flex">
+          <div class="flexside">
+            <p class="popuptextbox">
+              <strong>통화지점:</strong> {{ crminfo.indeptName }}
+            </p>
+          </div>
+        </div>
+        <div class="flexside">
+          <p class="popuptextbox">
+            <strong>전화번호:</strong> {{ crminfo.callPhoneno }}
+          </p>
+        </div>
+        <strong>CRM 웹페이지로 돌아가서 정보확인 바랍니다.</strong>
+      </div>
     </div>
   </div>
 </template>
