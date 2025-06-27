@@ -1,30 +1,35 @@
 <!-- CrmPopup.vue -->
+
+<!-- crminfo값에 따라서 팝업내용이 달라집니다 아래쪽 스크립트에서 crminfo를 수정하면서 작업해주시면 감사하겠습니다.-->
+
+
 <template>
   <div>
-    <div class v-if="crminfo.callCustcode">
+    <!-- v-if="crminfo.callCustcode" -->
+    <div class v-if="crminfo">
       <div class="crmpopupinfo">
         <p class="popuptextbox">
-          <strong>고객명:</strong> {{ crminfo.callCustname }}
+          <strong>고객명:</strong> <!-- {{ crminfo.callCustname }} -->
         </p>
         <p class="popuptextbox">
-          <strong>일자:</strong> {{ crminfo.callDate }}
+          <strong>일자:</strong> <!-- {{ crminfo.callDate }} -->
         </p>
         <div style="display: flex">
           <div class="flexside">
             <p class="popuptextbox">
-              <strong>고객코드:</strong> {{ crminfo.callCustcode }}
+              <strong>고객코드:</strong> <!-- {{ crminfo.callCustcode }} -->
             </p>
             <p class="popuptextbox">
-              <strong>통화지점:</strong> {{ crminfo.indeptName }}
+              <strong>통화지점:</strong> <!-- {{ crminfo.indeptName }} -->
             </p>
           </div>
         </div>
         <div class="flexside">
           <p class="popuptextbox">
-            <strong>전화번호:</strong> {{ crminfo.callPhoneno }}
+            <strong>전화번호:</strong> <!-- {{ crminfo.callPhoneno }} -->
           </p>
           <p class="popuptextbox">
-            <strong>최종예약내역:</strong> {{ crminfo.lastRsrvName }}
+            <strong>최종예약내역:</strong> <!-- {{ crminfo.lastRsrvName }} -->
           </p>
         </div>
         <strong>CRM 웹페이지로 돌아가서 정보확인 바랍니다.</strong>
@@ -36,18 +41,18 @@
           <strong>고객 정보 없음</strong> 
         </p>
         <p class="popuptextbox">
-          <strong>일자:</strong> {{ crminfo.callDate }}
+          <strong>일자:</strong> <!-- {{ crminfo.callDate }} -->
         </p>
         <div style="display: flex">
           <div class="flexside">
             <p class="popuptextbox">
-              <strong>통화지점:</strong> {{ crminfo.indeptName }}
+              <strong>통화지점:</strong> <!-- {{ crminfo.indeptName }} -->
             </p>
           </div>
         </div>
         <div class="flexside">
           <p class="popuptextbox">
-            <strong>전화번호:</strong> {{ crminfo.callPhoneno }}
+            <strong>전화번호:</strong> <!-- {{ crminfo.callPhoneno }} -->
           </p>
         </div>
         <strong>CRM 웹페이지로 돌아가서 정보확인 바랍니다.</strong>
@@ -57,26 +62,27 @@
 </template>
 
 <script>
-import axios from "axios";
+/* import axios from "axios"; */
 
 export default {
   data() {
     return {
       hpNo: null,
-      crminfo: null,
+      /* crminfo 값을 고객정보 없을때  빈값 "" 고객정보 있을때 "1" 바꾸면서 작업하시면 됩니다.*/
+      crminfo: "1",
       callDate: null,
     };
   },
   mounted() {
-    const storedHpNo = localStorage.getItem("hpNo");
+    /* const storedHpNo = localStorage.getItem("hpNo");
     if (storedHpNo) {
       this.hpNo = storedHpNo;
       this.callDate = localStorage.getItem("callDate");
       this.fetchCrmInfo();
-    }
+    } */
   },
   methods: {
-    fetchCrmInfo() {
+    /* fetchCrmInfo() {
       if (this.hpNo) {
         axios
           .post("./crm-popup-info", {
@@ -91,22 +97,7 @@ export default {
             console.error("CRM 정보 조회 실패:", error);
           });
       }
-    },
-    restoreParentWindow() {
-      if (window.opener && !window.opener.closed) {
-        try {
-          window.opener.focus(); // 백그라운드 창에 포커스
-          // 부모 창이 최소화된 경우 알림
-          if (window.opener.document.visibilityState === "hidden") {
-            window.opener.document.visibilityState = "visible"; // 부모 창을 활성화
-          }
-        } catch (e) {
-          console.error("부모 창 접근 실패:", e);
-        }
-      } else {
-        alert("부모 창이 닫혔습니다.");
-      }
-    },
+    }, */
   },
 };
 </script>
