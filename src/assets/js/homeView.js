@@ -259,7 +259,20 @@ export default {
       }
     };
     window.logoutfromserver = function () {};
-    window.parseHangupEvent = () => {};
+    window.parseHangupEvent = (DATA1,DATA2,DATA3,DATA4,DATA5,DATA6,DATA7,DATA8,DATA9) => {
+      const iframe = this.$refs.ipccFrame;
+      if (
+        iframe &&
+        iframe.contentWindow &&
+        typeof iframe.contentWindow.SendCommand2Socket === "function"
+      ) {
+        iframe.contentWindow.SendCommand2Socket(
+          `CMD|MEMBERSTATUS|0,${this.ipccLoginInfo.exten}`
+        );
+      } else {
+        // alert("IPCC 프레임이 준비되지 않았거나, 통신 함수가 없습니다.");
+      }
+    };
     window.parsePhoneStatus = function () {};
     //   await this.callbacklisttoken();
     /* await this.callbackdateinput();

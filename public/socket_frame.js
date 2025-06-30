@@ -361,7 +361,6 @@ function parseMessage(msg) {
     );
     return;
   } else if (event == "HANGUPEVENT") {
-    //내선끊은후 이전 상태콘트롤
     if (data8 == "" && data1.length == 3 && data2.length == 3) {
       data8 = B_MEMBER_STATUS;
     } else if (data8 == "") {
