@@ -51,7 +51,7 @@
 </template>
 
 <script>
-/* import axios from "axios"; */
+// import axios from "axios";
 
 
 import {
@@ -82,23 +82,23 @@ export default {
   methods: {
     async onSubmit() {
       try {
-        /* const crmid = this.crmid;
-        const password = this.password;
-        const extNo = this.extNo;
-        const response = await axios.post("./login", {
-          crmid,
-          password,
-          extNo,
-        });
+        // const crmid = this.crmid;
+        // const password = this.password;
+        // const extNo = this.extNo;
+        // const response = await axios.post("./login", {
+        //   crmid,
+        //   password,
+        //   extNo,
+        // });
 
-        console.log("로그인 성공:", response.data); */
+        // console.log("로그인 성공:", response.data);
 
         localStorage.setItem(
           "loginInfo",
           JSON.stringify({
             nodejs_connector_url: "http://122.49.74.230:8087",
-            userid: "test9477", // 사용자 ID
-            exten: "9477",
+            userid: "test9260", // 사용자 ID
+            exten: "9260",
             company_id: "himo", // 회사 ID
             passwd: "user!2322",
             first_status: "0",
@@ -110,18 +110,18 @@ export default {
         this.$router.push({ name: "Home" });
       } catch (error) {
         // 서버에서 내려준 code로 분기
-        // const code = error.response?.data?.code;
-        // if (code === "INVALID_USER") {
-        //   alert("아이디 또는 비밀번호가 잘못되었습니다.");
-        //   this.error = "로그인에 실패했습니다. 아이디와 비밀번호를 확인하세요.";
-        // } else if (code === "INVALID_EXTNO") {
-        //   alert("내선번호가 일치하지 않습니다.");
-        //   this.error = "내선번호를 다시 확인해 주세요.";
-        // } else {
-        //   alert("알 수 없는 오류가 발생했습니다.");
-        //   this.error = "로그인에 실패했습니다. 다시 시도해 주세요.";
-        // }
-        // console.log(error);
+        const code = error.response?.data?.code;
+        if (code === "INVALID_USER") {
+          alert("아이디 또는 비밀번호가 잘못되었습니다.");
+          this.error = "로그인에 실패했습니다. 아이디와 비밀번호를 확인하세요.";
+        } else if (code === "INVALID_EXTNO") {
+          alert("내선번호가 일치하지 않습니다.");
+          this.error = "내선번호를 다시 확인해 주세요.";
+        } else {
+          alert("알 수 없는 오류가 발생했습니다.");
+          this.error = "로그인에 실패했습니다. 다시 시도해 주세요.";
+        }
+        console.log(error);
         this.$router.push({ name: "Home" });
       }
     },

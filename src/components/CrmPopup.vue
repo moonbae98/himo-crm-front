@@ -9,27 +9,32 @@
     <div class v-if="crminfo">
       <div class="crmpopupinfo">
         <p class="popuptextbox">
-          <strong>고객명:</strong> <!-- {{ crminfo.callCustname }} -->
+          <strong>고객명:</strong> 홍길동<!-- {{ crminfo.callCustname }} -->
         </p>
         <p class="popuptextbox">
-          <strong>일자:</strong> <!-- {{ crminfo.callDate }} -->
+          <strong>일자:</strong> 20250701
+          <!-- {{ crminfo.callDate }} -->
         </p>
         <div style="display: flex">
           <div class="flexside">
             <p class="popuptextbox">
-              <strong>고객코드:</strong> <!-- {{ crminfo.callCustcode }} -->
+              <strong>고객코드:</strong> 11111111
+              <!-- {{ crminfo.callCustcode }} -->
             </p>
             <p class="popuptextbox">
-              <strong>통화지점:</strong> <!-- {{ crminfo.indeptName }} -->
+              <strong>통화지점:</strong> 영업본사
+              <!-- {{ crminfo.indeptName }} -->
             </p>
           </div>
         </div>
         <div class="flexside">
           <p class="popuptextbox">
-            <strong>전화번호:</strong> <!-- {{ crminfo.callPhoneno }} -->
+            <strong>전화번호:</strong> 010-1111-1111
+            <!-- {{ crminfo.callPhoneno }} -->
           </p>
           <p class="popuptextbox">
-            <strong>최종예약내역:</strong> <!-- {{ crminfo.lastRsrvName }} -->
+            <strong>최종예약내역:</strong> 기성가발구매
+            <!-- {{ crminfo.lastRsrvName }} -->
           </p>
         </div>
         <strong>CRM 웹페이지로 돌아가서 정보확인 바랍니다.</strong>
@@ -41,18 +46,21 @@
           <strong>고객 정보 없음</strong> 
         </p>
         <p class="popuptextbox">
-          <strong>일자:</strong> <!-- {{ crminfo.callDate }} -->
+          <strong>일자:</strong> 20250701
+          <!-- {{ crminfo.callDate }} -->
         </p>
         <div style="display: flex">
           <div class="flexside">
             <p class="popuptextbox">
-              <strong>통화지점:</strong> <!-- {{ crminfo.indeptName }} -->
+              <strong>통화지점:</strong> 영업본사
+              <!-- {{ crminfo.indeptName }} -->
             </p>
           </div>
         </div>
         <div class="flexside">
           <p class="popuptextbox">
-            <strong>전화번호:</strong> <!-- {{ crminfo.callPhoneno }} -->
+            <strong>전화번호:</strong> 010-1111-1111
+            <!-- {{ crminfo.callPhoneno }} -->
           </p>
         </div>
         <strong>CRM 웹페이지로 돌아가서 정보확인 바랍니다.</strong>
@@ -62,7 +70,7 @@
 </template>
 
 <script>
-/* import axios from "axios"; */
+// import axios from "axios";
 
 export default {
   data() {
@@ -74,30 +82,30 @@ export default {
     };
   },
   mounted() {
-    /* const storedHpNo = localStorage.getItem("hpNo");
+    const storedHpNo = localStorage.getItem("hpNo");
     if (storedHpNo) {
       this.hpNo = storedHpNo;
       this.callDate = localStorage.getItem("callDate");
       this.fetchCrmInfo();
-    } */
+    }
   },
   methods: {
-    /* fetchCrmInfo() {
-      if (this.hpNo) {
-        axios
-          .post("./crm-popup-info", {
-            hpNo: this.hpNo,
-            callDate: this.callDate,
-          })
-          .then((response) => {
-            this.crminfo = response.data;
-            console.log("CRM 정보 조회 성공:", this.crminfo);
-          })
-          .catch((error) => {
-            console.error("CRM 정보 조회 실패:", error);
-          });
-      }
-    }, */
+    fetchCrmInfo() {
+      // if (this.hpNo) {
+      //   axios
+      //     .post("./crm-popup-info", {
+      //       hpNo: this.hpNo,
+      //       callDate: this.callDate,
+      //     })
+      //     .then((response) => {
+      //       this.crminfo = response.data;
+      //       console.log("CRM 정보 조회 성공:", this.crminfo);
+      //     })
+      //     .catch((error) => {
+      //       console.error("CRM 정보 조회 실패:", error);
+      //     });
+      // }
+    },
   },
 };
 </script>
