@@ -175,7 +175,19 @@ export default {
       consultnm: "",
       customerType: "",
       consultcallStatus: "%",
+      consultcallStatusOptions: [
+        { text: "전체", value: "%", },
+        { text: "통화", value: "Y", },
+        { text: "미통화", value: "N", },
+      ],
       consultcustType: "%",
+      consultcustTypeOptions: [
+        { text: "전체", value: "%", },
+        { text: "신규고객", value: "0", },
+        { text: "기존고객", value: "1", },
+        { text: "잠재고객", value: "2", },
+        { text: "기타고객", value: "9", },
+      ],
       consultname:"",
       consultdate:"",
       consultremark:"",
@@ -305,16 +317,27 @@ export default {
           key: "CALL_DATE",
           label: "통화일자",
           sortable: true,
-          thStyle: { width: "20%" },
+          thStyle: { width: "162px" },
         },
         {
           key: "CALL_INSPHONE",
           label: "걸려온 전화번호",
-          thStyle: { width: "15%" },
+          thStyle: { width: "180px" },
         },
-        { key: "CALL_PHONENO", label: "핸드폰번호", thStyle: { width: "15%" } },
-        { key: "CALL_CUSTNAME", label: "고객명", thStyle: { width: "20%" } },
-        { key: "CALL_REMARK", label: "REMARK", thStyle: { width: "30%" } },
+        { key: "CALL_PHONENO", 
+          label: "핸드폰번호", 
+          thStyle: { width: "180px" },
+        },
+        { 
+          key: "CALL_CUSTNAME", 
+          label: "고객명", 
+          thStyle: { width: "120px" },
+        },
+        { 
+          key: "CALL_REMARK", 
+          label: "REMARK", 
+          thStyle: { width: "auto" } 
+        },
       ],
       consultcurrentPage: 1,
       consultperPage: 9,
@@ -747,7 +770,7 @@ export default {
         window.open(
           "/himo-crm/crm-popup",
           "crmPopup_" + Date.now(),
-          `width=500,height=400,left=${baseLeft + this.popupOffset},top=${
+          `width=560,height=500,left=${baseLeft + this.popupOffset},top=${
             baseTop + this.popupOffset
           }`
         );
@@ -766,7 +789,7 @@ export default {
       window.open(
         "/himo-crm/crm-infopopup",
         "crmInfoPopup_" + Date.now(),
-        `width=700,height=400,left=${baseLeft + this.popupOffset},top=${
+        `width=560,height=778,left=${baseLeft + this.popupOffset},top=${
           baseTop + this.popupOffset
         }`
       );
