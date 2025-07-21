@@ -1,118 +1,103 @@
 <template>
-  <b-card class="modern-card" style="margin: 10px">
-    <div class="form-pair-table">
-      <div class="form-pair-row">
-        <label>고객명 :</label>
-        <input
-          class="slim-input"
-          v-model="customerInfo.callCustname"
-        />
-        <label>일자 :</label>
-        <input
-          readonly
-          class="slim-input"
-          :value="customerInfo ? customerInfo.callDate : ''"
-        />
+  <div>
+    <div class="crm-popup-container">
+      <header class="crm-popup-header">
+        <h2 class="popup-title">CRM 정보</h2>
+        <button @click="closePopup" type="button" class="btn-close" aria-label="Close"></button>
+      </header>
+
+      <div class="crm-info-content">
+        <div class="info-grid">
+          <div class="info-group">
+            <b-form-group label="고객명">
+              <b-form-input v-model="customerInfo.callCustname" />
+            </b-form-group>
+          </div>
+          <div class="info-group">
+            <b-form-group label="일자">
+              <b-form-input v-model="customerInfo.callDate" readonly />
+            </b-form-group>
+          </div>
+          <div class="info-group">
+            <b-form-group label="수신 전화번호">
+              <b-form-input v-model="customerInfo.callInsphone" readonly />
+            </b-form-group>
+          </div>
+          <div class="info-group">
+            <b-form-group label="성별">
+              <b-form-select v-model="customerInfo.gender" :options="genders" />
+            </b-form-group>
+          </div>
+          <div class="info-group">
+            <b-form-group label="사용 전화번호">
+              <b-form-input v-model="customerInfo.callPhoneno" readonly />
+            </b-form-group>
+          </div>
+          <div class="info-group">
+            <b-form-group label="핸드폰번호">
+              <b-form-input v-model="customerInfo.callUsephone" readonly />
+            </b-form-group>
+          </div>
+          <div class="info-group">
+            <b-form-group label="고객코드">
+              <b-form-input v-model="customerInfo.callCustcode" readonly />
+            </b-form-group>
+          </div>
+          <div class="info-group">
+            <b-form-group label="통화지점">
+              <b-form-input v-model="customerInfo.deptName" readonly />
+            </b-form-group>
+          </div>
+          <div class="info-group">
+            <b-form-group label="고객 구분">
+              <b-form-select v-model="customerInfo.mastGubun" :options="customerTypes" />
+            </b-form-group>
+          </div>
+          <div class="info-group">
+            <b-form-group label="문자 수신">
+              <b-form-select v-model="customerInfo.mastSmsYn" :options="smsReceives" />
+            </b-form-group>
+          </div>
+          <div class="info-group full-width">
+            <b-form-group label="상담내역">
+              <b-form-textarea
+                v-model="safeCallRemark"
+                rows="6"
+                no-resize />
+            </b-form-group>
+          </div>
+        </div>
       </div>
-      <div class="form-pair-row">
-        <label>수신 전화번호 :</label>
-        <input
-          readonly
-          class="slim-input"
-          :value="customerInfo ? customerInfo.callInsphone : ''"
-        />
-        <label>성별 :</label>
-        <select class="slim-input" v-model="customerInfo.gender">
-          <option
-            v-for="option in genders"
-            :key="option.value"
-            :value="option.value"
-          >
-            {{ option.text }}
-          </option>
-        </select>
-      </div>
-      <div class="form-pair-row">
-        <label>사용 전화번호 :</label>
-        <input
-          readonly
-          class="slim-input"
-          :value="customerInfo ? customerInfo.callPhoneno : ''"
-        />
-        <label>핸드폰번호 :</label>
-        <input
-          readonly
-          class="slim-input"
-          :value="customerInfo ? customerInfo.callUsephone : ''"
-        />
-      </div>
-      <div class="form-pair-row">
-        <label>고객코드 :</label>
-        <input
-          readonly
-          class="slim-input"
-          :value="customerInfo ? customerInfo.callCustcode : ''"
-        />
-        <label>통화지점 :</label>
-        <input
-          readonly
-          class="slim-input"
-          :value="customerInfo ? customerInfo.deptName : ''"
-        />
-      </div>
-      <div class="form-pair-row">
-        <label>고객 구분 :</label>
-        <select class="slim-input" v-model ="customerInfo.mastGubun">
-          <option
-            v-for="option in customerTypes"
-            :key="option.value"
-            :value="option.value"
-          >
-            {{ option.text }}
-          </option>
-        </select>
-        <label>문자 수신 :</label>
-        <select class="slim-input" v-model="customerInfo.mastSmsYn">
-          <option
-            v-for="option in smsReceives"
-            :key="option.value"
-            :value="option.value"
-          >
-            {{ option.text }}
-          </option>
-        </select>
+
+      <div class="crm-popup-footer">
+        <b-button
+          class="btn btn-secondary"
+          @click="infopopupclose"
+          >취소</b-button>
+        <b-button class="btn btn-primary" @click="crminfosave"
+          >저장</b-button>
       </div>
     </div>
-    <label>상담내역</label>
-    <textarea
-      rows="4"
-      style="height: 120px"
-      v-model="safeCallRemark"
-      class="form-control mb-2 no-resize slim-textarea"
-    ></textarea>
-  </b-card>
-  <div>
-    <b-button class="btn btn-primary" style="margin: 10px" @click="crminfosave"
-      >저장</b-button
-    >
-    <b-button
-      class="btn btn-secondary"
-      style="margin: 10px"
-      @click="infopopupclose"
-      >취소</b-button
-    >
   </div>
 </template>
 
 <script>
 // src/pages/HomeView.vue
-import { BCard } from "bootstrap-vue-next";
 // import axios from "axios";
+import {
+  BFormGroup,
+  BFormInput,
+  BFormSelect,
+  BFormTextarea,
+} from "bootstrap-vue-next";
 
 export default {
   name: "CrmInfoPopup",
   components: {
-    BCard,
+    BFormGroup,
+    BFormInput,
+    BFormSelect,
+    BFormTextarea,
   },
   data() {
     return {
@@ -185,6 +170,11 @@ export default {
     //     alert("통화내역 조회에 실패했습니다.");
     //   }
     // },
+    closePopup() {
+      if (window.opener) {
+          window.close()
+      }
+    },
   },
   computed: {
     safeCallRemark: {
