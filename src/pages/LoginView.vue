@@ -1,52 +1,75 @@
 <template>
-  <div class="d-flex flex-column justify-content-center align-items-center">
-    <img
-      alt="Crm logo"
-      src="../assets/crm_icon.png"
-      class="login-crm-img mb-4"
-    />
-    <b-card style="max-width: 400px; width: 100%">
-      <h2 class="text-center mb-4">CRM Login</h2>
-      <b-form @submit.prevent="onSubmit">
-        <b-form-group class="mb-2" label="아이디" label-for="input-crmid">
-          <b-form-input
-            id="input-crmid"
-            v-model="crmid"
-            placeholder="아이디를 입력하세요"
-            autocomplete="username"
-            required
-          ></b-form-input>
-        </b-form-group>
-        <b-form-group class="mb-2" label="비밀번호" label-for="input-password">
-          <b-form-input
-            id="input-password"
-            v-model="password"
-            type="password"
-            placeholder="비밀번호를 입력하세요"
-            autocomplete="current-password"
-            required
-          ></b-form-input>
-        </b-form-group>
-        <div class="row d-flex justify-content-between mb-2">
-          <div class="col-auto pr-0">
-            <b-button type="submit" variant="primary" block style="height: 100%"
-              >로그인</b-button
-            >
-          </div>
-          <div class="col-auto">
+  <div class="login-container">
+    <div>
+      <div class="mb-3">
+        <AppLogo size="medium" align="center"/>
+      </div>
+
+      <div class="login-form-container px-4">
+        <h2 class="login-title pt-4">LOGIN</h2>
+
+        <b-form class="login-form" @submit.prevent="onSubmit">
+          <b-form-group class="mb-3" label="아이디" label-for="input-crmid">
             <b-form-input
-              id="input-extNo"
-              v-model="extNo"
-              placeholder="내선번호"
-              autocomplete="off"
+              id="input-crmid"
+              v-model="crmid"
+              placeholder="아이디를 입력하세요"
+              autocomplete="username"
               required
-              style="width: 120px"
+              size="lg"
             ></b-form-input>
+          </b-form-group>
+
+          <div class="row d-flex justify-content-between">
+            <div class="col-7">
+              <b-form-group class="mb-3" label="비밀번호" label-for="input-password">
+                <b-form-input
+                  id="input-password"
+                  v-model="password"
+                  type="password"
+                  placeholder="비밀번호를 입력하세요"
+                  autocomplete="current-password"
+                  required
+                  size="lg"
+                ></b-form-input>
+              </b-form-group>
+            </div>
+            <div class="col-5">
+              <b-form-group class="mb-3" label="내선번호" label-for="input-extNo">
+                  <b-form-input
+                    id="input-extNo"
+                    v-model="extNo"
+                    placeholder="내선번호"
+                    autocomplete="off"
+                    required
+                    size="lg"
+                  ></b-form-input>
+              </b-form-group>
+            </div>
           </div>
-        </div>
-      </b-form>
-      <div v-if="error" class="text-danger text-center mt-2">{{ error }}</div>
-    </b-card>
+
+          <div class="mb-3">
+            <!-- TODO: 자동로그인 기능 구현 필요 -->
+            <b-form-checkbox
+              id="checkbox"
+              v-model="autoLoginCheck"
+              name="checkbox"
+              value="1"
+              unchecked-value="0"
+              size="lg"
+            >
+              자동로그인
+            </b-form-checkbox>
+          </div>
+
+          <div class="d-grid pb-5">
+            <b-button type="submit" variant="primary" size="lg">로그인</b-button>
+          </div>
+        </b-form>
+
+        <div v-if="error" class="text-danger text-center mt-2">{{ error }}</div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -55,21 +78,24 @@
 
 
 import {
-  BCard,
   BForm,
   BFormGroup,
   BFormInput,
   BButton,
+  BFormCheckbox,
 } from "bootstrap-vue-next";
+
+import AppLogo from "@/components/AppLogo.vue";
 
 export default {
   name: "LoginView",
   components: {
-    BCard,
     BForm,
     BFormGroup,
     BFormInput,
     BButton,
+    BFormCheckbox,
+    AppLogo,
   },
   data() {
     return {
@@ -77,6 +103,7 @@ export default {
       password: "",
       extNo: "",
       error: "",
+      autoLoginCheck: 0, // TODO: 자동로그인 기능 구현 필요
     };
   },
   methods: {
@@ -130,8 +157,44 @@ export default {
 </script>
 
 <style>
-.login-crm-img {
-  width: 100px;
-  height: 50%;
+.login-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: max-content;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #2f2f37;
+}
+
+.login-container > div {
+  width: 100%;
+  max-width: 570px;
+}
+
+.login-form-container {
+  width: 100%;
+  margin: 0 auto;
+  border-radius: 5px;
+  background-color: #fff;
+}
+
+.login-title {
+  font-size: 30px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.login-form {
+  max-width: 430px;
+  margin: 0 auto;
+}
+
+.login-form .form-label {
+  font-size: 17px;
+  font-weight: 700;
 }
 </style>
