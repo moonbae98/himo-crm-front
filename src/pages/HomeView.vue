@@ -136,26 +136,6 @@
 
           <b-card class="call-card">
             <div class="call-container">
-              <!-- TODO -->
-              <div>
-                <!-- 팝업창 작업끝나시면 해당버튼은 지우셔도됩니다. -->
-                <button
-                  @click="showCrmInfo"
-                  class="btn btn-outline-success btn-sm call-btn"
-                  type="button"
-                >
-                  팝업창열기
-                </button>
-                <!-- 모달창 작업끝나시면 해당버튼은 지우셔도됩니다. -->
-                <button
-                  @click="showCrmInfomodal"
-                  class="btn btn-outline-success btn-sm call-btn"
-                  type="button"
-                >
-                  모달창열기
-                </button>
-              </div>
-
               <!-- 전화걸기 및 받기 -->
               <div class="phone-call-container pt-2">
                 <b-form-group
@@ -422,7 +402,7 @@
       size="xl"
     >
       <template #default>
-        <b-row class="gap-3" no-gutters>
+        <b-row class="gap-3 flex-nowrap" no-gutters>
           <b-col>
             <div class="filter-container">
               <div class="item">
@@ -559,78 +539,86 @@
       size="xl"
     >
       <template #default>
-        <div
-          style="display: flex; flex-direction: row; width: 100%; height: 35rem"
-        >
-          <div
-            style="
-              width: 70%;
-              height: 100%;
-              padding: 5px;
-              border: 1px solid black;
-              border-radius: 5px;
-              margin: 2px;
-              gap: 5px;
-              display: flex;
-              flex-direction: column;
-            "
-          >
-            <div class="callback-list-modal-content">
-              <p>기준일자 :</p>
-              <input
-                class="callbackdateinput"
-                type="date"
-                v-model="consultstartdt"
-              />~
-              <input
-                class="callbackdateinput"
-                type="date"
-                v-model="consultenddt"
-              />
-              <p>통화구분</p>
-              <select v-model="consultcallStatus">
-                <option value="%">전체</option>
-                <option value="Y">통화</option>
-                <option value="N">미통화</option>
-              </select>
-              <p>고객구분</p>
-              <select v-model="consultcustType">
-                <option value="%">전체</option>
-                <option value="0">신규고객</option>
-                <option value="1">기존고객</option>
-                <option value="2">잠재고객</option>
-                <option value="9">기타고객</option>
-              </select>
-              <b-button
-                variant="primary"
-                style="padding: 0 15px 0 15px"
-                @click="consultretrieve"
-                >조회</b-button
-              >
+        <b-row class="gap-3 flex-nowrap" no-gutters>
+          <b-col>
+            <div class="filter-container">
+              <div class="item">
+                <b-form-group
+                  label="기준일자"
+                >
+                  <input
+                    class="datepicker-input"
+                    type="date"
+                    v-model="consultstartdt"
+                  />~
+                  <input
+                    class="datepicker-input"
+                    type="date"
+                    v-model="consultenddt"
+                  />
+                </b-form-group>
+              </div>
+              <div class="item">
+                <b-form-group label="통화구분">
+                  <b-form-select
+                    v-model="consultcallStatus"
+                    :options="consultcallStatusOptions"
+                    size="sm"
+                  />
+                </b-form-group>
+              </div>
+              <div class="item">
+                <b-form-group label="고객구분">
+                  <b-form-select
+                    v-model="consultcustType"
+                    :options="consultcustTypeOptions"
+                    size="sm"
+                  />
+                </b-form-group>
+              </div>
+              <div class="item">
+                <b-button
+                  variant="secondary"
+                  size="sm"
+                  @click="consultretrieve"
+                  >조회</b-button>
+              </div>
             </div>
-            <div class="callback-list-modal-content">
-              <p>방문지점</p>
-              <input class="consultinput" v-model="visitBranchCode" readonly />
-              <input class="consultinput" v-model="visitBranch" readonly />
-              <p>전화번호 :</p>
-              <input
-                class="callbackdateinput"
-                v-model="consultphone"
-                type="text"
-              />
-              <p>고객명 :</p>
-              <input class="consultinputname" v-model="consultnm" type="text" />
+
+            <div class="consultation-info">
+              <b-form-group label="방문지점">
+                <b-form-input 
+                  v-model="visitBranchCode"
+                  readonly
+                  size="sm" />
+                <b-form-input 
+                  v-model="visitBranch"
+                  readonly
+                  size="sm" />
+              </b-form-group>
+              <b-form-group label="전화번호">
+                <b-form-input 
+                  v-model="consultphone"
+                  readonly
+                  size="sm" />
+              </b-form-group>
+              <b-form-group label="고객명">
+                <b-form-input 
+                  v-model="consultnm"
+                  readonly
+                  size="sm" />
+              </b-form-group>
             </div>
-            <hr class="callbackline" />
+
             <b-table
-              class="consult-list-table"
               @row-clicked="consult_retrieve_row"
               :items="consultlistitems"
               :fields="consultlistfields"
               :per-page="consultperPage"
               :current-page="consultcurrentPage"
-              bordered
+              striped
               hover
+              small
             ></b-table>
             <b-pagination
               v-model="consultcurrentPage"
@@ -640,54 +628,73 @@
               style="margin-top: auto"
               class="d-flex justify-content-center"
             />
-          </div>
-          <div
-            style="
-              width: 30%;
-              height: 100%;
-              padding: 5px;
-              border: 1px solid black;
-              border-radius: 5px;
-              margin: 2px;
-              gap: 5px;
-              display: flex;
-              flex-direction: column;
-            "
-          >
-            <strong>상담내역</strong>
-            <p class="consultPtext">이름</p>
-            <input
-              class="consultsideinput"
-              type="text"
-              :value="consultInfo ? consultInfo.callCustname : ''"
-              readonly
-            />
-            <p class="consultPtext">통화 일자</p>
-            <input
-              class="consultsideinput"
-              type="text"
-              :value="consultInfo ? consultInfo.callDate : ''"
-              readonly
-            />
-            <p class="consultPtext">상담내역</p>
-            <textarea
-              class="consultation-textarea"
-              :value="consultInfo ? consultInfo.callRemark : ''"
-              readonly
-            />
-            <p class="consultPtext">최종 as내역</p>
-            <textarea
-              class="consultation-textarea"
-              :value="consultInfo ? consultInfo.asRemark : ''"
-              readonly
-            />
-          </div>
-        </div>
+          </b-col>
+          <b-col cols="3">
+            <aside class="aside-section consultation-section">
+              <h6 class="title">상담내역</h6>
+
+              <div class="mb-3">
+                <b-form-group
+                  label="이름"
+                  label-cols="3"
+                  label-cols-md="4"
+                  class="size-small"
+                >
+                  <b-form-input
+                    v-model="consultInfo.callCustname"
+                    type="text"
+                    readonly
+                    size="sm"
+                  />
+                </b-form-group>
+                <b-form-group
+                  label="통화 일자"
+                  label-cols="3"
+                  label-cols-md="4"
+                  class="size-small"
+                >
+                  <b-form-input
+                    v-model="consultInfo.callDate"
+                    type="text"
+                    readonly
+                    size="sm"
+                  />
+                </b-form-group>
+              </div>
+              <div>
+                <b-form-group
+                  label="상담내역"
+                  class="size-small mb-2"
+                >
+                  <b-form-textarea
+                    v-model="consultInfo.callRemark"
+                    type="text"
+                    size="sm"
+                    rows="7"
+                    readonly
+                    no-resize
+                  />
+                </b-form-group>
+                <b-form-group
+                  label="최종 as내역"
+                  class="size-small"
+                >
+                  <b-form-textarea
+                    v-model="consultInfo.asRemark"
+                    type="text"
+                    size="sm"
+                    rows="7"
+                    readonly
+                    no-resize
+                  />
+                </b-form-group>
+              </div>
+            </aside>
+          </b-col>
+        </b-row>
       </template>
       <template #footer>
-        <b-button variant="secondary" @click="consultationModal = false"
-          >닫기</b-button
-        >
+        <b-button variant="primary" @click="consultationModal = false">닫기</b-button>
       </template>
     </b-modal>
 
@@ -696,80 +703,65 @@
       v-model:show="crminfomodal"
       title="CRM 정보"
       @hide="oncrmModalHide"
+      class="body-padding-0"
     >
       <div>
         <!-- class v-if="crminfo.callCustcode ? crminfo.callCustcode : false" 프론트개발이후 모달에 들어갈 조건 -->
-        <div>
-          고객정보 있을 경우
-          <div class="crmpopupinfo">
-            <p class="popuptextbox">
-              <strong>고객명:</strong>
-              홍길동
-              <!-- {{ crminfo.callCustname ? crminfo.callCustname : "" }} -->
-            </p>
-            <p class="popuptextbox">
-              <strong>일자:</strong>
-              20250701
-              <!-- {{ crminfo.callDate ? crminfo.callDate : "" }} -->
-            </p>
-            <div style="display: flex">
-              <div class="flexside">
-                <p class="popuptextbox">
-                  <strong>고객코드:</strong>
-                  1111111
-                  <!-- {{ crminfo.callCustcode ? crminfo.callCustcode : "" }} -->
-                </p>
-                <p class="popuptextbox">
-                  <strong>통화지점:</strong>
-                  영업본사
-                  <!-- {{ crminfo.indeptName ? crminfo.indeptName : "" }} -->
-                </p>
-              </div>
+        <div class="crm-info-content">
+          <h5>고객정보 있을 경우</h5>
+
+          <div class="info-grid">
+            <div class="info-group full-width">
+              <div class="info-label">고객명</div>
+              <div class="info-text">홍길동<!-- {{ crminfo.callCustname ? crminfo.callCustname : "" }} --></div>
             </div>
-            <div class="flexside">
-              <p class="popuptextbox">
-                <strong>전화번호:</strong>
-                010-9467-5887
-                <!-- {{ crminfo.callPhoneno ? crminfo.callPhoneno : "" }} -->
-              </p>
-              <p class="popuptextbox">
-                <strong>최종예약내역:</strong>
-                AS신청
-                <!-- {{ crminfo.lastRsrvName ? crminfo.lastRsrvName : "" }} -->
-              </p>
+            <div class="info-group full-width">
+              <div class="info-label">일자</div>
+              <div class="info-text">20250701<!-- {{ crminfo.callDate ? crminfo.callDate : "" }} --></div>
             </div>
-            <strong>CRM 웹페이지로 돌아가서 정보확인 바랍니다.</strong>
+            <div class="info-group">
+              <div class="info-label">고객코드</div>
+              <div class="info-text">1111111<!-- {{ crminfo.callCustcode ? crminfo.callCustcode : "" }} --></div>
+            </div>
+            <div class="info-group">
+              <div class="info-label">통화지점</div>
+              <div class="info-text">영업본사<!-- {{ crminfo.indeptName ? crminfo.indeptName : "" }} --></div>
+            </div>
+            <div class="info-group">
+              <div class="info-label">전화번호</div>
+              <div class="info-text">010-9467-5887<!-- {{ crminfo.callPhoneno ? crminfo.callPhoneno : "" }} --></div>
+            </div>
+            <div class="info-group">
+              <div class="info-label">최종예약내역</div>
+              <div class="info-text">AS신청<!-- {{ crminfo.lastRsrvName ? crminfo.lastRsrvName : "" }} --></div>
+            </div>
           </div>
+          
+          <p class="help-text">CRM 웹페이지로 돌아가서 정보확인 바랍니다.</p>
         </div>
-        <div>
-          고객정보 없을 경우
-          <div class="crmpopupinfo">
-            <p class="popuptextbox">
-              <strong>고객 정보 없음</strong>
-            </p>
-            <p class="popuptextbox">
-              <strong>일자:</strong>
-              20250701
-              <!-- {{ crminfo.callDate ? crminfo.callDate : "" }} -->
-            </p>
-            <div style="display: flex">
-              <div class="flexside">
-                <p class="popuptextbox">
-                  <strong>통화지점:</strong>
-                  영업본사
-                  <!-- {{ crminfo.indeptName ? crminfo.indeptName : "" }} -->
-                </p>
-              </div>
+        <div class="crm-info-content">
+          <h5>고객정보 없을 경우</h5>
+
+          <div class="info-grid">
+            <div class="info-group full-width">
+              <div class="info-label">고객명</div>
+              <div class="info-text">고객 정보 없음</div>
             </div>
-            <div class="flexside">
-              <p class="popuptextbox">
-                <strong>전화번호:</strong>
-                010-9467-5887
-                <!-- {{ crminfo.callPhoneno ? crminfo.callPhoneno : "" }} -->
-              </p>
+            <div class="info-group full-width">
+              <div class="info-label">일자</div>
+              <div class="info-text">20250701<!-- {{ crminfo.callDate ? crminfo.callDate : "" }} --></div>
             </div>
-            <strong>CRM 웹페이지로 돌아가서 정보확인 바랍니다.</strong>
+            <div class="info-group">
+              <div class="info-label">통화지점</div>
+              <div class="info-text">영업본사<!-- {{ crminfo.indeptName ? crminfo.indeptName : "" }} --></div>
+            </div>
+            <div class="info-group">
+              <div class="info-label">전화번호</div>
+              <div class="info-text">010-9467-5887<!-- {{ crminfo.callPhoneno ? crminfo.callPhoneno : "" }} --></div>
+            </div>
           </div>
+          
+          <p class="help-text">CRM 웹페이지로 돌아가서 정보확인 바랍니다.</p>
         </div>
       </div>
     </b-modal>

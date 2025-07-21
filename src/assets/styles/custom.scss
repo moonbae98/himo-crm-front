@@ -338,20 +338,6 @@ body {
   }
 }
 
-/* 모달 공통 */
-.modal {
-  .aside-section {
-    padding: 20px;
-    border-radius: 5px;
-    background-color: #f9f9f9;
-
-    .title {
-      font-size: 16px;
-      font-weight: 700;
-    }
-  }
-}
-
 /* Datepicker Input */
 .datepicker-input {
   padding: 0 10px;
@@ -366,8 +352,9 @@ body {
 .filter-container {
   display: grid;
   align-items: center;
-  gap: 16px;
-  margin-bottom: 16px;
+  gap: 10px;
+  padding: 20px 16px 0;
+  margin-bottom: 20px;
 
   > .item {
     .btn {
@@ -378,13 +365,14 @@ body {
   .b-form-group {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 10px;
   }
 
   .col-form-label {
-    padding: 0 0 0 16px;
+    padding: 0;
     font-size: 16px;
     font-weight: 700;
+    white-space: nowrap;
     text-align: center;
   }
 }
@@ -395,9 +383,35 @@ body {
   }
 }
 
+.consult-list-modal {
+  .filter-container {
+    grid-template-columns: max-content 150px 200px 70px;
+  }
+
+  .consultation-info {
+    display: grid;
+    grid-template-columns: 360px 1fr 1fr;
+    align-items: center;
+    gap: 10px;
+    padding: 0 16px;
+    margin-bottom: 20px;
+
+    .b-form-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+
+      .form-label  {
+        margin-bottom: 0;
+        white-space: nowrap;
+      }
+    }
+  }
+}
+
 /* 통화 내역 기록 */
 .call-history-container {
-
   .customer-info {
     display: flex;
     flex-direction: column;
@@ -406,6 +420,77 @@ body {
     label {
       font-weight: 700;
     }
+  }
+}
+
+/* crm 정보 팝업/모달 */
+.crm-popup-container {
+  border-radius: 5px;
+  background-color: #fff;
+  overflow: hidden;
+}
+
+.crm-popup-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 28px 40px;
+  border-bottom: 1px solid #e6e6e7;
+
+  .popup-title {
+    margin-bottom: 0;
+    font-size: 20px;
+    font-weight: 700;
+  }
+}
+
+.crm-info-content {
+  padding: 20px 40px;
+  background-color: #f9f9f9;
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 24px;
+
+    .info-group {
+      &.full-width {
+        grid-column: span 2;
+      }
+    }
+    
+    .info-label {
+      margin-bottom: 4px;
+      font-size: 16px;
+    }
+
+    .info-text {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 0 16px;
+      width: 100%;
+      min-height: 40px;
+      border-radius: 3px;
+      border: 1px solid #dee2e5;
+      background-color: #fff;
+    }
+  }
+
+  .help-text {
+    margin-top: 24px;
+    font-size: 16px;
+  }
+}
+
+.crm-popup-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 8px 20px;
+  border-top: 1px solid #e6e6e7;
+
+  .btn {
+    margin: 4px;
   }
 }
 
@@ -501,19 +586,48 @@ body {
   --bs-btn-disabled-border-color: rgba(156, 156, 156, .4);
 }
 
+
+/* 모달 공통 */
+.modal {
+  .aside-section {
+    padding: 20px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+
+    .title {
+      font-size: 16px;
+      font-weight: 700;
+    }
+  }
+
+  &.body-padding-0 {
+    .modal-body {
+      padding: 0;
+    }
+  }
+}
+
 /* Modal Override */
 .modal {
+  --bs-modal-width: 560px;
   --bs-modal-border-radius: 5px;
   --bs-modal-header-padding: 28px 40px;
   --bs-modal-header-border-color: #e6e6e7;
   --bs-modal-footer-border-color: #e6e6e7;
+  --bs-modal-padding: 16px 20px;
 }
 .modal-lg {
     --bs-modal-width: 884px;
 }
+.modal-xl {
+    --bs-modal-width: 1244px;
+}
 .modal-title {
   font-size: 20px;
   font-weight: 700;
+}
+.modal-footer {
+  padding: 8px 20px;
 }
 
 /* Input Box Override */
@@ -539,6 +653,11 @@ body {
   &:disabled {
     background-color: #f9f9f9;
   }
+}
+
+.form-select-sm {
+    height: 30px;
+    padding: 0 0.25rem;
 }
 
 /* Checkbox Override */
@@ -739,16 +858,24 @@ body {
 .table th.b-table-sortable-column[aria-sort="ascending"]:after {
   border-left: 5px solid transparent;
   border-right: 5px solid transparent;
-  border-bottom: 8px solid black;
+  border-bottom: 8px solid var(--theme-black-primary-color);
   border-top: 0;
+}
+
+.theme-blue .table th.b-table-sortable-column[aria-sort="ascending"]:after {
+  border-bottom: 8px solid var(--theme-blue-primary-color);
 }
 
 /* Descending sort arrow */
 .table th.b-table-sortable-column[aria-sort="descending"]:after {
   border-left: 5px solid transparent;
   border-right: 5px solid transparent;
-  border-top: 8px solid black;
+  border-top: 8px solid var(--theme-black-primary-color);
   border-bottom: 0;
+}
+
+.theme-blue .table th.b-table-sortable-column[aria-sort="descending"]:after {
+  border-top: 8px solid var(--theme-blue-primary-color);
 }
 
 /* Hover effect for sortable columns */

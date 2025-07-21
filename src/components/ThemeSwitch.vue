@@ -17,13 +17,9 @@ export default {
     data() {
         return {
             // TODO: 유저가 설정한 테마 값으로 불러오기
-            // currentValue: 'black', // black or blue
-            currentValue: 'blue' // black or blue
+            currentValue: 'black', // black or blue
+            // currentValue: 'blue' // black or blue
         }
-    },
-    mounted() {
-        // 컴포넌트 마운트 시 초기 테마 클래스 설정
-        this.setThemeClass()
     },
     computed: {
         isBlue() {

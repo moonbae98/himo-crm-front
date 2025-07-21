@@ -7,63 +7,73 @@
   <div>
     <!-- v-if="crminfo.callCustcode" -->
     <div class v-if="crminfo">
-      <div class="crmpopupinfo">
-        <p class="popuptextbox">
-          <strong>고객명:</strong> 홍길동<!-- {{ crminfo.callCustname }} -->
-        </p>
-        <p class="popuptextbox">
-          <strong>일자:</strong> 20250701
-          <!-- {{ crminfo.callDate }} -->
-        </p>
-        <div style="display: flex">
-          <div class="flexside">
-            <p class="popuptextbox">
-              <strong>고객코드:</strong> 11111111
-              <!-- {{ crminfo.callCustcode }} -->
-            </p>
-            <p class="popuptextbox">
-              <strong>통화지점:</strong> 영업본사
-              <!-- {{ crminfo.indeptName }} -->
-            </p>
+      <div class="crm-popup-container">
+        <header class="crm-popup-header">
+          <h2 class="popup-title">CRM 정보</h2>
+          <button @click="closePopup" type="button" class="btn-close" aria-label="Close"></button>
+        </header>
+
+        <div class="crm-info-content">
+          <div class="info-grid">
+            <div class="info-group full-width">
+              <div class="info-label">고객명</div>
+              <div class="info-text">홍길동<!-- {{ crminfo.callCustname }} --></div>
+            </div>
+            <div class="info-group full-width">
+              <div class="info-label">일자</div>
+              <div class="info-text">20250701<!-- {{ crminfo.callDate }} --></div>
+            </div>
+            <div class="info-group">
+              <div class="info-label">고객코드</div>
+              <div class="info-text">11111111<!-- {{ crminfo.callCustcode }} --></div>
+            </div>
+            <div class="info-group">
+              <div class="info-label">통화지점</div>
+              <div class="info-text">영업본사<!-- {{ crminfo.indeptName }} --></div>
+            </div>
+            <div class="info-group">
+              <div class="info-label">전화번호</div>
+              <div class="info-text">010-1111-1111<!-- {{ crminfo.callPhoneno }} --></div>
+            </div>
+            <div class="info-group">
+              <div class="info-label">최종예약내역</div>
+              <div class="info-text">기성가발구매<!-- {{ crminfo.lastRsrvName }} --></div>
+            </div>
           </div>
+
+          <p class="help-text">CRM 웹페이지로 돌아가서 정보확인 바랍니다.</p>
         </div>
-        <div class="flexside">
-          <p class="popuptextbox">
-            <strong>전화번호:</strong> 010-1111-1111
-            <!-- {{ crminfo.callPhoneno }} -->
-          </p>
-          <p class="popuptextbox">
-            <strong>최종예약내역:</strong> 기성가발구매
-            <!-- {{ crminfo.lastRsrvName }} -->
-          </p>
-        </div>
-        <strong>CRM 웹페이지로 돌아가서 정보확인 바랍니다.</strong>
       </div>
     </div>
     <div v-else>
-      <div class="crmpopupinfo">
-        <p class="popuptextbox">
-          <strong>고객 정보 없음</strong> 
-        </p>
-        <p class="popuptextbox">
-          <strong>일자:</strong> 20250701
-          <!-- {{ crminfo.callDate }} -->
-        </p>
-        <div style="display: flex">
-          <div class="flexside">
-            <p class="popuptextbox">
-              <strong>통화지점:</strong> 영업본사
-              <!-- {{ crminfo.indeptName }} -->
-            </p>
+      <div class="crm-popup-container">
+        <header class="crm-popup-header">
+          <h2 class="popup-title">CRM 정보</h2>
+          <button @click="closePopup" type="button" class="btn-close" aria-label="Close"></button>
+        </header>
+
+        <div class="crm-info-content">
+          <div class="info-grid">
+            <div class="info-group full-width">
+              <div class="info-label">고객명</div>
+              <div class="info-text">고객 정보 없음</div>
+            </div>
+            <div class="info-group full-width">
+              <div class="info-label">일자</div>
+              <div class="info-text">20250701<!-- {{ crminfo.callDate }} --></div>
+            </div>
+            <div class="info-group">
+              <div class="info-label">통화지점</div>
+              <div class="info-text">영업본사<!-- {{ crminfo.indeptName }} --></div>
+            </div>
+            <div class="info-group">
+              <div class="info-label">전화번호</div>
+              <div class="info-text">010-1111-1111<!-- {{ crminfo.callPhoneno }} --></div>
+            </div>
           </div>
+
+          <p class="help-text">CRM 웹페이지로 돌아가서 정보확인 바랍니다.</p>
         </div>
-        <div class="flexside">
-          <p class="popuptextbox">
-            <strong>전화번호:</strong> 010-1111-1111
-            <!-- {{ crminfo.callPhoneno }} -->
-          </p>
-        </div>
-        <strong>CRM 웹페이지로 돌아가서 정보확인 바랍니다.</strong>
       </div>
     </div>
   </div>
@@ -105,6 +115,11 @@ export default {
       //       console.error("CRM 정보 조회 실패:", error);
       //     });
       // }
+    },
+    closePopup() {
+      if (window.opener) {
+          window.close()
+      }
     },
   },
 };
