@@ -10,9 +10,15 @@ import {
   BCol,
   BTable,
   BPagination,
+  BFormGroup,
+  BFormInput,
+  BFormSelect,
+  BFormTextarea,
 } from "bootstrap-vue-next";
 // import axios from "axios";
 import CryptoJS from "crypto-js";
+import AppLogo from "@/components/AppLogo.vue";
+import ThemeSwitch from "@/components/ThemeSwitch.vue";
 
 export default {
   name: "HomeView",
@@ -26,6 +32,12 @@ export default {
     BCol,
     BTable,
     BPagination,
+    BFormGroup,
+    BFormInput,
+    BFormSelect,
+    BFormTextarea,
+    AppLogo,
+    ThemeSwitch,
   },
 
   data() {
@@ -220,26 +232,30 @@ export default {
           key: "deptName",
           label: "사업장",
           sortable: true,
-          thStyle: { width: "100px" },
+          thStyle: { width: "162px" },
         },
         {
           key: "callDate",
           label: "전화일자",
           sortable: true,
-          thStyle: { width: "190px" },
+          thStyle: { width: "162px" },
         },
         {
           key: "callInsphone",
           label: "걸려온 전화",
           sortable: true,
-          thStyle: { width: "150px" },
+          thStyle: { width: "200px" },
         },
         {
           key: "callPhoneno",
           label: "등록전화번호",
-          thStyle: { width: "150px" },
+          thStyle: { width: "200px" },
         },
-        { key: "callCustname", label: "고객명", thStyle: { width: "150px" } },
+        { 
+          key: "callCustname", 
+          label: "고객명", 
+          thStyle: { width: "120px" },
+        },
         {
           key: "callStatus",
           label: "상태",
@@ -259,16 +275,30 @@ export default {
             }
             return value;
           },
-          thStyle: { width: "130px" },
+          thStyle: { width: "162px" },
         },
         {
           key: "lastRsrvName",
           label: "최종예약내역",
-          thStyle: { width: "150px" },
+          thStyle: { width: "162px" },
         },
-        { key: "asCodeName", label: "최종AS일", thStyle: { width: "150px" } },
-        { key: "asRemark", label: "최종AS내역", thStyle: { width: "500px" } },
-        { key: "callRemark", label: "비고", thStyle: { width: "500px" } },
+        { 
+          key: "asCodeName", 
+          label: "최종AS일", 
+          thStyle: { width: "162px" },
+        },
+        { 
+          key: 
+          "asRemark", 
+          label: "최종AS내역", 
+          thStyle: { width: "300px" }
+        },
+        { 
+          key: 
+          "callRemark", 
+          label: "비고", 
+          thStyle: { width: "500px" }
+        },
       ],
       consultlistfields: [
         {
