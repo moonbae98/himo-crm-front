@@ -1,4 +1,4 @@
-* {
+/* * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -7,7 +7,7 @@
 .crmpopupinfo {
   display: flex;
   flex-direction: column;
-  gap: 10px; /* 각 항목 사이 간격 */
+  gap: 10px; 
   background: #ffffff;
   border: 1px solid #e3e8ef;
   border-radius: 12px;
@@ -177,7 +177,7 @@
   box-shadow: 0 0 0 2px #b2f5ea;
 }
 
-/* 한 줄에 두 쌍씩 라벨+입력 정렬 */
+
 .form-pair-table {
   display: flex;
   flex-direction: column;
@@ -213,7 +213,7 @@
 .slim-textarea {
   min-height: 32px;
   max-height: 48px;
-  resize: none; /* 크기 조절 비활성화 */
+  resize: none; 
   font-size: 12px;
   padding: 6px 10px;
 }
@@ -226,21 +226,20 @@
   border-radius: 5px;
   background: lightblue;
   color: white;
-  font-weight: bold; /* 글씨 두껍게 */
-  cursor: pointer; /* 손가락 포인터 */
-  transition: all 0.2s ease; /* 부드러운 변화 */
+  font-weight: bold; 
+  cursor: pointer; 
+  transition: all 0.2s ease; 
 }
 
 .dolbtn.active,
 .dolobtn.active {
-  background: #1976d2; /* 진한 파랑 */
+  background: #1976d2; 
   border-color: #0d47a1;
   color: #fff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* 살짝 그림자 */
-  transform: translateY(-1px); /* 살짝 위로 올라감 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); 
+  transform: translateY(-1px);
 }
 
-/* 호버 효과 추가 (선택사항) */
 .dolbtn:hover,
 .dolobtn:hover {
   background: #64b5f6;
@@ -427,4 +426,4 @@
   border-color: #007bff;
   background: #e6f0ff;
 }
-
+ */

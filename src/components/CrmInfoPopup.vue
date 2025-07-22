@@ -147,6 +147,7 @@ export default {
         //   usercode: localStorage.getItem("usercode"),
         // };
         // await axios.post("./consultations", payload);
+        window.close();
       } catch (error) {
         alert("CRM 정보 저장에 실패했습니다.");
       }
@@ -156,19 +157,19 @@ export default {
     },
 
     // async infomationload(callPhoneno, callDate) {
-    //   try {
-    //     const response = await axios.post("./c_info_retrieve", {
-    //       hpNo: callPhoneno,
-    //       callDate: callDate,
-    //     });
-    //     this.customerInfo =
-    //       Array.isArray(response.data) && response.data.length > 0
-    //         ? response.data[0]
-    //         : null;
-    //     console.log("고객 정보 조회 성공:", this.customerInfo);
-    //   } catch (error) {
-    //     alert("통화내역 조회에 실패했습니다.");
-    //   }
+    //   // try {
+    //   //   const response = await axios.post("./c_info_retrieve", {
+    //   //     hpNo: callPhoneno,
+    //   //     callDate: callDate,
+    //   //   });
+    //   //   this.customerInfo =
+    //   //     Array.isArray(response.data) && response.data.length > 0
+    //   //       ? response.data[0]
+    //   //       : null;
+    //   //   console.log("고객 정보 조회 성공:", this.customerInfo);
+    //   // } catch (error) {
+    //   //   alert("통화내역 조회에 실패했습니다.");
+    //   // }
     // },
     closePopup() {
       if (window.opener) {

@@ -17,27 +17,27 @@
           <div class="info-grid">
             <div class="info-group full-width">
               <div class="info-label">고객명</div>
-              <div class="info-text">홍길동<!-- {{ crminfo.callCustname }} --></div>
+              <div class="info-text"><!--{{ crminfo.callCustname }}--></div>
             </div>
             <div class="info-group full-width">
               <div class="info-label">일자</div>
-              <div class="info-text">20250701<!-- {{ crminfo.callDate }} --></div>
+              <div class="info-text"><!--{{ crminfo.callDate }}--></div>
             </div>
             <div class="info-group">
               <div class="info-label">고객코드</div>
-              <div class="info-text">11111111<!-- {{ crminfo.callCustcode }} --></div>
+              <div class="info-text"><!--{{ crminfo.callCustcode }}--></div>
             </div>
             <div class="info-group">
               <div class="info-label">통화지점</div>
-              <div class="info-text">영업본사<!-- {{ crminfo.indeptName }} --></div>
+              <div class="info-text"><!--{{ crminfo.indeptName }}--></div>
             </div>
             <div class="info-group">
               <div class="info-label">전화번호</div>
-              <div class="info-text">010-1111-1111<!-- {{ crminfo.callPhoneno }} --></div>
+              <div class="info-text"><!--{{ crminfo.callPhoneno }}--></div>
             </div>
             <div class="info-group">
               <div class="info-label">최종예약내역</div>
-              <div class="info-text">기성가발구매<!-- {{ crminfo.lastRsrvName }} --></div>
+              <div class="info-text"><!--{{ crminfo.lastRsrvName }}--></div>
             </div>
           </div>
 
@@ -60,15 +60,15 @@
             </div>
             <div class="info-group full-width">
               <div class="info-label">일자</div>
-              <div class="info-text">20250701<!-- {{ crminfo.callDate }} --></div>
+              <div class="info-text"><!--{{ crminfo.callDate }}--></div>
             </div>
             <div class="info-group">
               <div class="info-label">통화지점</div>
-              <div class="info-text">영업본사<!-- {{ crminfo.indeptName }} --></div>
+              <div class="info-text"><!--{{ crminfo.indeptName }}--></div>
             </div>
             <div class="info-group">
               <div class="info-label">전화번호</div>
-              <div class="info-text">010-1111-1111<!-- {{ crminfo.callPhoneno }} --></div>
+              <div class="info-text"><!--{{ crminfo.callPhoneno }}--></div>
             </div>
           </div>
 
@@ -87,7 +87,7 @@ export default {
     return {
       hpNo: null,
       /* crminfo 값을 고객정보 없을때  빈값 "" 고객정보 있을때 "1" 바꾸면서 작업하시면 됩니다.*/
-      crminfo: "1",
+      crminfo: "",
       callDate: null,
     };
   },
@@ -101,20 +101,20 @@ export default {
   },
   methods: {
     fetchCrmInfo() {
-      // if (this.hpNo) {
-      //   axios
-      //     .post("./crm-popup-info", {
-      //       hpNo: this.hpNo,
-      //       callDate: this.callDate,
-      //     })
-      //     .then((response) => {
-      //       this.crminfo = response.data;
-      //       console.log("CRM 정보 조회 성공:", this.crminfo);
-      //     })
-      //     .catch((error) => {
-      //       console.error("CRM 정보 조회 실패:", error);
-      //     });
-      // }
+      if (this.hpNo) {
+        // axios
+        //   .post("./crm-popup-info", {
+        //     hpNo: this.hpNo,
+        //     callDate: this.callDate,
+        //   })
+        //   .then((response) => {
+        //     this.crminfo = response.data;
+        //     console.log("CRM 정보 조회 성공:", this.crminfo);
+        //   })
+        //   .catch((error) => {
+        //     console.error("CRM 정보 조회 실패:", error);
+        //   });
+      }
     },
     closePopup() {
       if (window.opener) {

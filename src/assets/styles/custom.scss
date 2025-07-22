@@ -188,11 +188,40 @@ body {
 }
 
 .calls-table {
-  & > tbody  {
+  & > tbody {
     & > tr {
       cursor: pointer;
     }
   }
+}
+
+.calls-table >>> td, 
+.calls-table td {
+  max-height: 50px !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  text-overflow: ellipsis !important;
+  padding: 0 8px !important;
+  vertical-align: middle !important;
+}
+
+
+.consult-table >>> td, 
+.consult-table td {
+  max-height: 50px !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  text-overflow: ellipsis !important;
+  padding: 0 8px !important;
+  vertical-align: middle !important;
+}
+
+.ellipsis-cell {
+  display: block;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .today-calls-table-container {
@@ -972,4 +1001,10 @@ body {
       border-color: var(--theme-blue-primary-color);
     }
   }
+}
+
+.count-highlight{
+  font-weight: bold;
+  font-size:20px;
+  color : red;
 }

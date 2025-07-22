@@ -217,6 +217,7 @@ export default {
         { key: "callPhoneno", label: "전화번호" },
         { key: "callCustcode", label: "고객코드" },
         { key: "callCustname", label: "고객명" },
+        { key: "callCnt", label : "횟수"},
         {
           key: "callStatus",
           label: "상태",
@@ -348,15 +349,11 @@ export default {
 
   async mounted() {
     this.loadIPCCInfoFromStorage();
-    // const response = await axios.get("./session");
-    // this.visitBranch = response.data.extNo.deptNm;
-    // this.visitBranchCode = response.data.extNo.locSaupjang;
-    // this.user = response.data;
-    // await this.fetchTodayCallList();
     window.parseLogin = (data1, data2, data3, data4, data5, data6, data8) => {
       this.activeDangzic = data8;
       this.maincallnumberformatter(data6);
     };
+    // const response = await axios.get("./session");
     window.parseMemberStatus = (statusCode) => {
       if (statusCode === "0" || statusCode === 0) {
         this.activeMenu = "mbtn1";
@@ -368,6 +365,11 @@ export default {
         this.activeMenu = "mbtn4";
       }
     };
+    this.visitBranch = response.data.extNo.deptNm;
+    this.visitBranchCode = response.data.extNo.locSaupjang;
+    this.user = response.data;
+    
+    await this.fetchTodayCallList();
     window.parseCallEvent = (
       kind,
       callerNumber,
@@ -442,8 +444,8 @@ export default {
       }
     };
     window.parsePhoneStatus = function () {};
-    // await this.callbackdateinput();
-    // await this.callbacklist();
+    await this.callbackdateinput();
+    await this.callbacklist();
     this.updateCurrentTime();
     setInterval(this.updateCurrentTime, 1000);
     this.callbackcount();
@@ -464,7 +466,6 @@ export default {
     // IPCC 로그인 정보를 로컬 스토리지에서 불러옵니다.
     loadIPCCInfoFromStorage() {
       const loginInfo = localStorage.getItem("loginInfo");
-      console.log(loginInfo)
       if (loginInfo) {
         try {
           this.ipccLoginInfo = JSON.parse(loginInfo);
@@ -559,17 +560,17 @@ export default {
     },
 
     async callBackUpdate() {
-      try {
-        // await axios.post("./callbackupdate", {
-        //   callbackno: this.callbacknumber,
-        //   callbackdt: this.callbackdate,
-        //   inputempno: this.user?.user.crmid,
-        // });
-      } catch (error) {
-        console.error("콜백 전화 걸기 실패:", error);
-        alert("콜백 전화 걸기에 실패했습니다.");
-        return;
-      }
+      // try {
+      //   await axios.post("./callbackupdate", {
+      //     callbackno: this.callbacknumber,
+      //     callbackdt: this.callbackdate,
+      //     inputempno: this.user?.user.crmid,
+      //   });
+      // } catch (error) {
+      //   console.error("콜백 전화 걸기 실패:", error);
+      //   alert("콜백 전화 걸기에 실패했습니다.");
+      //   return;
+      // }
       // await this.callbacklistretrieve();
     },
 
@@ -670,32 +671,32 @@ export default {
     },
 
     async sendCallEventToServer(phoneNumber, callTime) {
-      try {
-        // 필요한 데이터 구성 (예: 내선, 상담자, 전화번호 등)
-        const payload = {
-          callPhoneno: phoneNumber,
-          callTime: callTime, // 통화 시간
-          userId: this.user?.user?.crmid, // 상담원 ID
-          callDept: this.user?.extNo?.deptNm, // 상담원 부서
-          locSaupjang: this.user?.extNo?.locSaupjang, // 상담원 부서 번호
-          callExtNo: this.user?.extNo?.extNo, // 내선번호
-        };
-        // await axios.post("./call-event", payload);
+      // try {
+      //   // 필요한 데이터 구성 (예: 내선, 상담자, 전화번호 등)
+      //   const payload = {
+      //     callPhoneno: phoneNumber,
+      //     callTime: callTime, // 통화 시간
+      //     userId: this.user?.user?.crmid, // 상담원 ID
+      //     callDept: this.user?.extNo?.deptNm, // 상담원 부서
+      //     locSaupjang: this.user?.extNo?.locSaupjang, // 상담원 부서 번호
+      //     callExtNo: this.user?.extNo?.extNo, // 내선번호
+      //   };
+      //   await axios.post("./call-event", payload);
 
-        // await this.fetchTodayCallList();
-      } catch (e) {
-        console.error("전화 이벤트 서버 전송 실패:", e);
-      }
+      //   await this.fetchTodayCallList();
+      // } catch (e) {
+      //   console.error("전화 이벤트 서버 전송 실패:", e);
+      // }
     },
     async receiveCall(phoneNumber, callTime) {
-      try {
-        // await axios.get("./receive-call", {
-        //   params: { callPhoneno: phoneNumber, callTime: callTime },
-        // });
-        // await this.fetchTodayCallList();
-      } catch (error) {
-        console.error("Failed to handle missed call:", error);
-      }
+      // try {
+      //   await axios.get("./receive-call", {
+      //     params: { callPhoneno: phoneNumber, callTime: callTime },
+      //   });
+      //   await this.fetchTodayCallList();
+      // } catch (error) {
+      //   console.error("Failed to handle missed call:", error);
+      // }
     },
 
     async homeinfo_retrieve(callPhoneno, callTime) {
@@ -743,15 +744,16 @@ export default {
       this.consultationModal = false;
     },
     async logout() {
-      try {
-        // await axios.post("./logout");
-        this.logoutshowConfirm = false;
-        this.logout1();
-        localStorage.removeItem("loginInfo");
-        this.$router.push({ name: "Login" });
-      } catch (error) {
-        console.error("Logout failed:", error);
-      }
+      // try {
+      //   await axios.post("./logout");
+      //   this.logoutshowConfirm = false;
+      //   this.logout1();
+      //   localStorage.removeItem("loginInfo");
+      //   localStorage.removeItem("autologin");
+      //   this.$router.push({ name: "Login" });
+      // } catch (error) {
+      //   console.error("Logout failed:", error);
+      // }
     },
 
     showCrmInfo(callPhoneno, callTime) {
@@ -797,51 +799,51 @@ export default {
 
     async showCrmInfomodal(callPhoneno, callTime) {
       this.crminfomodal = true;
-      try {
-        // axios
-        //   .post("./crm-popup-info", {
-        //     hpNo: callPhoneno,
-        //     callDate: callTime,
-        //   })
-        //   .then((response) => {
-        //     this.crminfo = response.data;
-        //   })
-        //   .catch((error) => {
-        //     console.error("CRM 정보 조회 실패:", error);
-        //   });
-      } catch (error) {
-        console.error("CRM 정보 조회 실패:", error);
-      }
+      // try {
+      //   axios
+      //     .post("./crm-popup-info", {
+      //       hpNo: callPhoneno,
+      //       callDate: callTime,
+      //     })
+      //     .then((response) => {
+      //       this.crminfo = response.data;
+      //     })
+      //     .catch((error) => {
+      //       console.error("CRM 정보 조회 실패:", error);
+      //     });
+      // } catch (error) {
+      //   console.error("CRM 정보 조회 실패:", error);
+      // }
     },
 
     async c_info_retrieve(item) {
-      try {
-        // const response = await axios.post("./c_info_retrieve", {
-        //   hpNo: item.callPhoneno,
-        // });
-        // this.crmitems = response.data;
-      } catch (error) {
-        alert("통화내역 조회에 실패했습니다.");
-      }
+      // try {
+      //   const response = await axios.post("./c_info_retrieve", {
+      //     hpNo: item.callPhoneno,
+      //   });
+      //   this.crmitems = response.data;
+      // } catch (error) {
+      //   alert("통화내역 조회에 실패했습니다.");
+      // }
     },
 
     async c_info_retrieve_row(item) {
-      try {
-        // const response = await axios.post("./c_info_retrieve", {
-        //   hpNo: item.callPhoneno,
-        //   callDate: item.callDate,
-        // });
-        // this.customerInfo =
-        //   Array.isArray(response.data) && response.data.length > 0
-        //     ? response.data[0]
-        //     : null;
-      } catch (error) {
-        alert("통화내역 조회에 실패했습니다.");
-      }
+      // try {
+      //   const response = await axios.post("./c_info_retrieve", {
+      //     hpNo: item.callPhoneno,
+      //     callDate: item.callDate,
+      //   });
+      //   this.customerInfo =
+      //     Array.isArray(response.data) && response.data.length > 0
+      //       ? response.data[0]
+      //       : null;
+      // } catch (error) {
+      //   alert("통화내역 조회에 실패했습니다.");
+      // }
     },
 
     async consult_retrieve_row(item) {
-       try {
+      //  try {
       //   const response = await axios.post("./c_info_retrieve", {
       //     hpNo: item.CALL_PHONENO,
       //     callDate: item.CALL_DATE,
@@ -852,72 +854,72 @@ export default {
       //       : null;
 
       //   console.log(this.consultInfo)
-      } catch (error) {
-        alert("통화내역 조회에 실패했습니다.");
-      }
+      // } catch (error) {
+      //   alert("통화내역 조회에 실패했습니다.");
+      // }
     },
 
     async fetchTodayCallList() {
-      try {
-        // const response = await axios.get("./today-call-list", {
-        //   params: { extNo: this.user?.extNo?.extNo },
-        // });
-        // this.todayCallList = [...response.data];
-      } catch (e) {
-        alert("오늘 통화내역 조회 실패");
-      }
+      // try {
+      //   const response = await axios.get("./today-call-list", {
+      //     params: { extNo: this.user?.extNo.extNo },
+      //   });
+      //   this.todayCallList = [...response.data];
+      // } catch (e) {
+      //   alert("오늘 통화내역 조회 실패");
+      // }
     },
 
     async callbacklisttoken() {
       const info = JSON.parse(localStorage.getItem("loginInfo"));
-      try {
-        // const response = await axios.post("./callbacklisttoken", {
-        //   company: info.company_id,
-        //   id: info.userid,
-        //   password: info.passwd,
-        //   extension: info.exten,
-        // });
-        // this.tokkenNo = response.data.data;
-        // this.callbacktokken = response.data;
-      } catch (error) {
-        console.error("콜백 토큰 조회 실패:", error);
-      }
+      // try {
+      //   const response = await axios.post("./callbacklisttoken", {
+      //     company: info.company_id,
+      //     id: info.userid,
+      //     password: info.passwd,
+      //     extension: info.exten,
+      //   });
+      //   this.tokkenNo = response.data.data;
+      //   this.callbacktokken = response.data;
+      // } catch (error) {
+      //   console.error("콜백 토큰 조회 실패:", error);
+      // }
     },
 
     async apicallbacklist() {
-      try {
-        // const response = await axios.post("./apicallbacklist", {
-        //   tokkenNo: this.tokkenNo,
-        // });
-        // this.callbacklistitems = response.data[0].data;
-        // console.log("콜백 리스트 조회 성공:", this.callbacklistitems);
-      } catch (error) {
-        console.error("콜백 리스트 조회 실패:", error);
-      }
+      // try {
+      //   const response = await axios.post("./apicallbacklist", {
+      //     tokkenNo: this.tokkenNo,
+      //   });
+      //   this.callbacklistitems = response.data[0].data;
+      //   console.log("콜백 리스트 조회 성공:", this.callbacklistitems);
+      // } catch (error) {
+      //   console.error("콜백 리스트 조회 실패:", error);
+      // }
     },
 
     async callbacklist() {
-      try {
-        // const response = await axios.post("./callbacklist", {
-        //   backDept: this.user?.extNo?.locSaupjang,
-        // });
-        // this.callbacklistitems = response.data;
-      } catch (error) {
-        console.error("콜백 리스트 조회 실패:", error);
-      }
+      // try {
+      //   const response = await axios.post("./callbacklist", {
+      //     backDept: this.user?.extNo?.locSaupjang,
+      //   });
+      //   this.callbacklistitems = response.data;
+      // } catch (error) {
+      //   console.error("콜백 리스트 조회 실패:", error);
+      // }
     },
 
     async dateinputcallbacklist() {
-      try {
-        // const response = await axios.post("./dateinputcallbacklist", {
-        //   backDept: this.user?.extNo?.locSaupjang,
-        //   startDate: this.callbackstartdt,
-        //   endDate: this.callbackenddt,
-        // });
-        // this.callbacklistitems = response.data;
-      } catch (error) {
-        console.error("날짜 입력 콜백 리스트 조회 실패:", error);
-      }
+      // try {
+      //   const response = await axios.post("./dateinputcallbacklist", {
+      //     backDept: this.user?.extNo?.locSaupjang,
+      //     startDate: this.callbackstartdt,
+      //     endDate: this.callbackenddt,
+      //   });
+      //   this.callbacklistitems = response.data;
+      // } catch (error) {
+      //   console.error("날짜 입력 콜백 리스트 조회 실패:", error);
+      // }
     },
 
     consultmodalOn() {
@@ -942,34 +944,34 @@ export default {
     },
 
     async consultretrieve() {
-      try {
-        // const response = await axios.post("./consultretrieve", {
-        //   backDept: this.user?.extNo?.locSaupjang,
-        //   startDt: this.consultstartdt,
-        //   endDt: this.consultenddt,
-        //   cphone: this.consultphone,
-        //   custName: this.consultnm,
-        //   consultcallStatus: this.consultcallStatus,
-        //   consultcustType: this.consultcustType,
-        // });
-        // this.consultlistitems = response.data;
-      } catch (error) {
-        console.error("상담 리스트 조회 실패:", error);
-      }
+      // try {
+      //   const response = await axios.post("./consultretrieve", {
+      //     backDept: this.user?.extNo?.locSaupjang,
+      //     startDt: this.consultstartdt,
+      //     endDt: this.consultenddt,
+      //     cphone: this.consultphone,
+      //     custName: this.consultnm,
+      //     consultcallStatus: this.consultcallStatus,
+      //     consultcustType: this.consultcustType,
+      //   });
+      //   this.consultlistitems = response.data;
+      // } catch (error) {
+      //   console.error("상담 리스트 조회 실패:", error);
+      // }
     },
 
     async callbackset(item) {
-      this.callbacknumber = item.backPhoneno;
-      this.callbackdate = item.backDate;
-      this.callbackinnumber = item.backCallNo;
-      try {
-        // const response = await axios.post("./crm-info", {
-        //   hpNo: item.backPhoneno,
-        // });
-        // this.callbackcustname = response.data.mbsViewNm || "";
-      } catch (error) {
-        console.error("콜백 고객명 조회 실패:", error);
-      }
+      // this.callbacknumber = item.backPhoneno;
+      // this.callbackdate = item.backDate;
+      // this.callbackinnumber = item.backCallNo;
+      // try {
+      //   const response = await axios.post("./crm-info", {
+      //     hpNo: item.backPhoneno,
+      //   });
+      //   this.callbackcustname = response.data.mbsViewNm || "";
+      // } catch (error) {
+      //   console.error("콜백 고객명 조회 실패:", error);
+      // }
     },
 
     callbackdateinput() {
@@ -993,18 +995,18 @@ export default {
     },
 
     async callbacklistretrieve() {
-      this.testModal = true;
-      this.callbackdateinput();
-      try {
-        // const response = await axios.post("./dateinputcallbacklist", {
-        //   backDept: this.user?.extNo?.locSaupjang,
-        //   startDate: this.callbackstartdt,
-        //   endDate: this.callbackenddt,
-        // });
-        // this.callbacklistitems = response.data;
-      } catch (error) {
-        console.error("콜백 리스트 조회 실패:", error);
-      }
+       this.testModal = true;
+      // this.callbackdateinput();
+      // try {
+      //   const response = await axios.post("./dateinputcallbacklist", {
+      //     backDept: this.user?.extNo?.locSaupjang,
+      //     startDate: this.callbackstartdt,
+      //     endDate: this.callbackenddt,
+      //   });
+      //   this.callbacklistitems = response.data;
+      // } catch (error) {
+      //   console.error("콜백 리스트 조회 실패:", error);
+      // }
     },
 
     maincallnumberformatter(value) {
@@ -1027,27 +1029,6 @@ export default {
       const mi = String(now.getMinutes()).padStart(2, "0");
       const ss = String(now.getSeconds() + 1).padStart(2, "0");
       this.currentTime = `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
-    },
-
-    selectDesign(design) {
-      this.selectedDesign = design;
-    },
-    async designupdate() {
-      if (!this.selectedDesign) {
-        return;
-      }
-      try {
-
-        // await axios.post('./designupdate', {
-        //   design: this.selectedDesign,
-        // });
-        this.designModal = false;
-      } catch (e) {
-         console.error("디자인 적용 실패:", e);
-      }
-    },
-    onConsultationModalHide() {
-      this.selectedDesign = null;
     },
   },
 };

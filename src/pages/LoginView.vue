@@ -2,7 +2,7 @@
   <div class="login-container">
     <div>
       <div class="mb-3">
-        <AppLogo size="medium" align="center"/>
+        <AppLogo size="medium" align="center" />
       </div>
 
       <div class="login-form-container px-4">
@@ -22,7 +22,11 @@
 
           <div class="row d-flex justify-content-between">
             <div class="col-7">
-              <b-form-group class="mb-3" label="비밀번호" label-for="input-password">
+              <b-form-group
+                class="mb-3"
+                label="비밀번호"
+                label-for="input-password"
+              >
                 <b-form-input
                   id="input-password"
                   v-model="password"
@@ -35,15 +39,19 @@
               </b-form-group>
             </div>
             <div class="col-5">
-              <b-form-group class="mb-3" label="내선번호" label-for="input-extNo">
-                  <b-form-input
-                    id="input-extNo"
-                    v-model="extNo"
-                    placeholder="내선번호"
-                    autocomplete="off"
-                    required
-                    size="lg"
-                  ></b-form-input>
+              <b-form-group
+                class="mb-3"
+                label="내선번호"
+                label-for="input-extNo"
+              >
+                <b-form-input
+                  id="input-extNo"
+                  v-model="extNo"
+                  placeholder="내선번호"
+                  autocomplete="off"
+                  required
+                  size="lg"
+                ></b-form-input>
               </b-form-group>
             </div>
           </div>
@@ -63,7 +71,9 @@
           </div>
 
           <div class="d-grid pb-5">
-            <b-button type="submit" variant="primary" size="lg">로그인</b-button>
+            <b-button type="submit" variant="primary" size="lg"
+              >로그인</b-button
+            >
           </div>
         </b-form>
 
@@ -75,7 +85,6 @@
 
 <script>
 // import axios from "axios";
-
 
 import {
   BForm,
@@ -106,6 +115,32 @@ export default {
       autoLoginCheck: 0, // TODO: 자동로그인 기능 구현 필요
     };
   },
+//   mounted() {
+//   const autologinStr = localStorage.getItem('autologin');
+
+//   if (autologinStr) {
+//     try {
+//       const autologin = JSON.parse(autologinStr);
+//       if (autologin.autoLoginCheck == 1 || autologin.autoLoginCheck === "1") {
+//         this.crmid = autologin.autoid;
+//         this.password = autologin.autopw;
+//         this.extNo = autologin.autoextno;
+//         this.autoLoginCheck = 1;
+//         // 자동로그인 실행
+//         this.onSubmit();
+//       } else {
+//         // 체크 아니면 autologin정보 삭제
+//         localStorage.removeItem("autologin");
+//         this.autoLoginCheck = 0;
+//       }
+//     } catch (e) {
+//       // 파싱 실패 시 제거
+//       localStorage.removeItem("autologin");
+//       this.autoLoginCheck = 0;
+//     }
+//   }
+// },
+
   methods: {
     async onSubmit() {
       try {
@@ -124,14 +159,24 @@ export default {
           "loginInfo",
           JSON.stringify({
             nodejs_connector_url: "http://122.49.74.230:8087",
-            userid: "test9260", // 사용자 ID
-            exten: "9260",
+            userid: "user"+this.extNo, // 사용자 ID
+            exten: this.extNo,
             company_id: "himo", // 회사 ID
             passwd: "user!2322",
             first_status: "0",
-            from_ui:"API",
+            from_ui: "API",
           })
         );
+        
+        // localStorage.setItem(
+        //   "autologin",
+        //   JSON.stringify({
+        //     autoLoginCheck: this.autoLoginCheck,
+        //     autoid: crmid,
+        //     autopw: password,
+        //     autoextno: extNo,
+        //   })
+        // );
 
         // 로그인 성공: 홈으로 이동
         this.$router.push({ name: "Home" });
