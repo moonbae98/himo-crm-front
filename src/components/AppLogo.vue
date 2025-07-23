@@ -36,7 +36,12 @@ export default {
     font-weight: 700;
 }
 
+.theme-brown .logo {
+    color: var(--theme-brown-primary-color);
+}
+
 .logo > img {
+    width: 100%;
     max-width: 96px;
 }
 

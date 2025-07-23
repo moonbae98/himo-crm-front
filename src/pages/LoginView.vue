@@ -6,12 +6,13 @@
       </div>
 
       <div class="login-form-container px-4">
-        <h2 class="login-title pt-4">LOGIN</h2>
+        <h2 class="login-title">LOGIN</h2>
 
         <b-form class="login-form" @submit.prevent="onSubmit">
           <b-form-group class="mb-3" label="아이디" label-for="input-crmid">
             <b-form-input
               id="input-crmid"
+              class="gray-form-input"
               v-model="crmid"
               placeholder="아이디를 입력하세요"
               autocomplete="username"
@@ -29,6 +30,7 @@
               >
                 <b-form-input
                   id="input-password"
+                  class="gray-form-input"
                   v-model="password"
                   type="password"
                   placeholder="비밀번호를 입력하세요"
@@ -46,6 +48,7 @@
               >
                 <b-form-input
                   id="input-extNo"
+                  class="gray-form-input"
                   v-model="extNo"
                   placeholder="내선번호"
                   autocomplete="off"
@@ -212,7 +215,7 @@ export default {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: #2f2f37;
+  background-color: #fff;
 }
 
 .login-container > div {
@@ -224,10 +227,13 @@ export default {
   width: 100%;
   margin: 0 auto;
   border-radius: 5px;
+  border: 1px solid #e9e9e9;
   background-color: #fff;
 }
 
 .login-title {
+  padding-top: 30px;
+  margin-bottom: 20px;
   font-size: 30px;
   font-weight: 700;
   text-align: center;

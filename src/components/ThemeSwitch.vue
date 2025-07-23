@@ -1,9 +1,9 @@
 <template>
   <label class="switch">
-    <input type="checkbox" :checked="isBlue" @change="handleToggle" />
+    <input type="checkbox" :checked="isBrown" @change="handleToggle" />
     <span class="slider">
       <span class="slider-text black-text">BLACK</span>
-      <span class="slider-text blue-text">BLUE</span>
+      <span class="slider-text brown-text">BROWN</span>
     </span>
   </label>
 </template>
@@ -18,8 +18,8 @@ export default {
     };
   },
   computed: {
-    isBlue() {
-      return this.currentValue === "blue";
+    isBrown() {
+      return this.currentValue === "brown";
     },
   },
   mounted() {
@@ -29,7 +29,7 @@ export default {
     setThemeClass() {
       // 기존 테마 클래스 제거 후 현재 값으로 설정
       document.body.className = document.body.className.replace(
-        /theme-(black|blue)/g,
+        /theme-(black|brown)/g,
         ""
       );
       document.body.classList.add(`theme-${this.currentValue}`);
@@ -38,7 +38,7 @@ export default {
       const logininfo = localStorage.getItem("autologin");
       const loginObj = JSON.parse(logininfo);
       const autoid = loginObj.autoid;
-      this.currentValue = this.currentValue === "black" ? "blue" : "black";
+      this.currentValue = this.currentValue === "black" ? "brown" : "black";
       axios.post("./designupdate", {
         color: this.currentValue,
         crmid: autoid,
@@ -68,7 +68,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
 .switch {
   position: relative;
   display: inline-block;
@@ -89,7 +89,7 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #16151b;
+  background-color: #d5d5d5;
   transition: 0.3s;
   border-radius: 25px;
   display: flex;
@@ -104,7 +104,7 @@ export default {
   width: 30px;
   right: 2px;
   bottom: 2px;
-  background-color: #47474c;
+  background-color: #36363a;
   transition: 0.3s;
   border-radius: 50%;
   z-index: 1;
@@ -112,41 +112,36 @@ export default {
 
 .slider-text {
   position: absolute;
-  width: 42px;
-  text-align: center;
   font-size: 10px;
   font-weight: 600;
-  color: #969696;
+  color: var(--theme-black-primary-color);
   text-transform: uppercase;
   z-index: 2;
   letter-spacing: -0.025em;
   transition: opacity 0.3s;
 }
 
-.blue-text {
+.brown-text {
   opacity: 0;
-  right: 0;
+  right: 8px;
+  font-size: 8px;
 }
 
 .black-text {
   opacity: 1;
-  left: 0;
-}
-
-input:checked + .slider {
-  background-color: #414141;
+  left: 8px;
 }
 
 input:checked + .slider:before {
   transform: translateX(-40px);
-  background-color: #125dd7;
+  background-color: var(--theme-brown-primary-color);
 }
 
 input:checked + .slider .slider-text {
-  color: #fff;
+  color: var(--theme-brown-primary-color);
 }
 
-input:checked + .slider .blue-text {
+input:checked + .slider .brown-text {
   opacity: 1;
 }
 
