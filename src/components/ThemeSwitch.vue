@@ -1,4 +1,14 @@
 <template>
+  <div class="info-panel">
+              <div class="info-row" hidden>
+                <span class="info-label">전화번호</span>
+                <span class="info-value">{{ maincallnumber }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">현재시간</span>
+                <span class="info-value">{{ currentTime }}</span>
+              </div>
+            </div>
   <label class="switch">
     <input type="checkbox" :checked="isBrown" @change="handleToggle" />
     <span class="slider">
@@ -15,6 +25,7 @@ export default {
   data() {
     return {
       currentValue: "black",
+      currentTime:"",
     };
   },
   computed: {
@@ -24,6 +35,10 @@ export default {
   },
   mounted() {
    this.themeLoad();
+   const mainextno = localStorage.getItem('mainextno');
+   this.maincallnumberformatter(mainextno);
+   this.updateCurrentTime();
+   setInterval(this.updateCurrentTime, 1000);
   },
   methods: {
     setThemeClass() {
@@ -64,6 +79,29 @@ export default {
         console.log(error);
       }
     },
+    maincallnumberformatter(value) {
+      // value: "12345678" (문자열 8자리)
+      if (!value || value.length !== 8) return "";
+
+      const first = value.slice(0, 4); // "1234"
+      const second = value.slice(4); // "5678"
+      const formatted = `070-${first}-${second}`;
+
+      this.maincallnumber = formatted;
+    },
+
+    updateCurrentTime() {
+      const now = new Date();
+
+      const yyyy = now.getFullYear();
+      const mm = String(now.getMonth() + 1).padStart(2, "0");
+      const dd = String(now.getDate()).padStart(2, "0");
+      const hh = String(now.getHours()).padStart(2, "0");
+      const mi = String(now.getMinutes()).padStart(2, "0");
+      const ss = String(now.getSeconds() + 1).padStart(2, "0");
+      this.currentTime = `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
+    },
+
   },
 };
 </script>

@@ -80,7 +80,7 @@
 </template>
 
 <script>
-// import axios from "axios";
+import axios from "axios";
 
 export default {
   data() {
@@ -102,18 +102,18 @@ export default {
   methods: {
     fetchCrmInfo() {
       if (this.hpNo) {
-        // axios
-        //   .post("./crm-popup-info", {
-        //     hpNo: this.hpNo,
-        //     callDate: this.callDate,
-        //   })
-        //   .then((response) => {
-        //     this.crminfo = response.data;
-        //     console.log("CRM 정보 조회 성공:", this.crminfo);
-        //   })
-        //   .catch((error) => {
-        //     console.error("CRM 정보 조회 실패:", error);
-        //   });
+        axios
+          .post("./crm-popup-info", {
+            hpNo: this.hpNo,
+            callDate: this.callDate,
+          })
+          .then((response) => {
+            this.crminfo = response.data;
+            console.log("CRM 정보 조회 성공:", this.crminfo);
+          })
+          .catch((error) => {
+            console.error("CRM 정보 조회 실패:", error);
+          });
       }
     },
     closePopup() {

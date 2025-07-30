@@ -1,6 +1,6 @@
 <template>
     <div :class="['logo', `size-${size}`, `align-${align}`]">
-        <img src="/himo-logo.svg" alt="하이모">
+        <img src="/himo-crm/resources/vue/himo-logo.svg" alt="하이모">
         CRM
     </div>
 </template>

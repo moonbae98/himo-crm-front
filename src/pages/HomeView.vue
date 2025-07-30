@@ -7,10 +7,13 @@
     <div class="right-box">
       <!-- TODO: ThemeSwitch 기능 구현 -->
       <ThemeSwitch />
-
-      <b-button class="button-logout" @click="logoutshowConfirm = true"
-        >종료</b-button
+      <b-button
+        v-if="user?.user.bizDiv === '1015'"
+        class="button-logout"
+        @click="adminbuttonModal = true"
+        >관리자</b-button
       >
+      <b-button class="button-logout" @click="logout">종료</b-button>
     </div>
   </header>
 
@@ -21,13 +24,18 @@
         <!-- 상담자 정보 및 기능 -->
         <b-card class="card-highlight">
           <div class="user-info-container">
-            <h3 class="title pt-3 mb-4">{{ user?.extNo.deptNm }}</h3>
+            <h2 class="title pt-3 mb-4">{{ user?.extNo.deptNm }}</h2>
 
             <div class="info-grid">
               <span class="info-label">전화번호</span>
               <span class="info-text">{{ user?.extNo.extNo }}</span>
               <span class="info-label">상담자</span>
-              <span class="info-text">{{ user?.user.name }}</span>
+              <span
+                id="pswdcursor"
+                class="info-text"
+                @dblclick="passwordChangeModal = true"
+                >{{ user?.user.name }}</span
+              >
             </div>
 
             <div class="contact-menus my-3">
@@ -110,6 +118,11 @@
                   data.value
                 }}</span>
               </template>
+              <template #cell(callCustname)="data">
+                <span class="ellipsis-cell" :title="data.value">{{
+                  data.value
+                }}</span>
+              </template>
               <template #cell(asRemark)="data">
                 <span class="ellipsis-cell" :title="data.value">{{
                   data.value
@@ -144,6 +157,7 @@
               :items="todayCallList"
               :fields="calllistfields"
               @row-clicked="c_info_retrieve"
+              :per-page="todayperPage"
               striped
               hover
             >
@@ -241,11 +255,12 @@
                 />
               </b-form-group>
 
-              <b-form-group label="비고" class="full-width">
+              <b-form-group label="최종AS내역" class="full-width">
                 <b-form-textarea
                   v-model="customerInfo.asRemark"
                   rows="2"
                   no-resize
+                  :title="customerInfo.asRemark"
                 />
               </b-form-group>
 
@@ -264,18 +279,32 @@
                 />
               </b-form-group>
               <b-form-group label="최종as일자">
-                <b-form-input type="text" readonly />
+                <b-form-input
+                  type="text"
+                  v-model="customerInfo.asDt"
+                  readonly
+                />
               </b-form-group>
               <b-form-group label="최종a/s명">
-                <b-form-input type="text" readonly />
+                <b-form-input
+                  type="text"
+                  v-model="customerInfo.asCodeName"
+                  readonly
+                />
               </b-form-group>
-              <b-form-group label="당직자 내선번호">
+              <b-form-group
+                label="당직자 내선번호"
+                v-if="user?.extNo?.locSaupjang === '1000'"
+              >
                 <b-form-input type="text" v-model="dangzicextno" />
               </b-form-group>
             </div>
 
             <!-- 당직자 로그 인/아웃 버튼 -->
-            <div class="logged-in-out-buttons-wrap my-4">
+            <div
+              class="logged-in-out-buttons-wrap my-4"
+              v-if="user?.extNo?.locSaupjang === '1000'"
+            >
               <div class="d-grid button-item">
                 <b-button
                   variant="primary"
@@ -295,18 +324,6 @@
                   <i class="icon-logout"></i>
                   당직자로그아웃
                 </b-button>
-              </div>
-            </div>
-
-            <!-- 전화번호 및 현재시간 -->
-            <div class="info-panel mb-3">
-              <div class="info-row">
-                <span class="info-label">전화번호</span>
-                <span class="info-value">{{ maincallnumber }}</span>
-              </div>
-              <div class="info-row">
-                <span class="info-label">현재시간</span>
-                <span class="info-value">{{ currentTime }}</span>
               </div>
             </div>
           </div>
@@ -351,22 +368,6 @@
         </b-col>
       </b-row>
     </b-container>
-
-    <!-- 로그아웃 컨펌 모달 -->
-    <b-modal v-model:show="logoutshowConfirm" title="로그아웃 확인">
-      로그아웃하시겠습니까?
-      <template #footer>
-        <b-button
-          class="p-1"
-          variant="secondary"
-          @click="logoutshowConfirm = false"
-          >취소</b-button
-        >
-        <b-button class="p-1" variant="primary" @click="logout"
-          >로그아웃</b-button
-        >
-      </template>
-    </b-modal>
 
     <!-- 콜백리스트 모달 -->
     <b-modal
@@ -472,7 +473,7 @@
                 </div>
                 <div class="d-grid">
                   <b-button variant="outline-primary" @click="callBackUpdate">
-                    콜백저장
+                    콜백 내역 통화 처리
                   </b-button>
                 </div>
               </div>
@@ -541,8 +542,18 @@
 
             <div class="consultation-info">
               <b-form-group label="방문지점">
-                <b-form-input v-model="visitBranchCode" readonly size="sm" />
-                <b-form-input v-model="visitBranch" readonly size="sm" />
+                <b-form-input
+                  v-model="visitBranchCode"
+                  readonly
+                  size="sm"
+                  style="font-size: 16px"
+                />
+                <b-form-input
+                  v-model="visitBranch"
+                  readonly
+                  size="sm"
+                  style="font-size: 16px"
+                />
               </b-form-group>
               <b-form-group label="전화번호">
                 <b-form-input v-model="consultphone" size="sm" />
@@ -558,12 +569,17 @@
               :fields="consultlistfields"
               :per-page="consultperPage"
               :current-page="consultcurrentPage"
-              :class="consult - table"
+              class="consult-table"
               striped
               hover
               small
             >
               <template #cell(CALL_REMARK)="data">
+                <span class="ellipsis-cell" :title="data.value">{{
+                  data.value
+                }}</span>
+              </template>
+              <template #cell(CALL_CUSTNAME)="data">
                 <span class="ellipsis-cell" :title="data.value">{{
                   data.value
                 }}</span>
@@ -700,7 +716,7 @@
 
           <p class="help-text">CRM 웹페이지로 돌아가서 정보확인 바랍니다.</p>
         </div>
-        <div class="crm-info-content">
+        <div class="crm-info-content" v-else>
           <h5>고객정보 없을 경우</h5>
 
           <div class="info-grid">
@@ -731,6 +747,174 @@
           <p class="help-text">CRM 웹페이지로 돌아가서 정보확인 바랍니다.</p>
         </div>
       </div>
+    </b-modal>
+    <b-modal
+      v-model:show="passwordChangeModal"
+      @hide="passwordChangeModalHide"
+      title="비밀번호 변경"
+      size="md"
+      class="crm-password-change"
+    >
+      <b-form @submit.prevent="changePassword">
+        <b-form-group>
+          <b-form-input
+            type="text"
+            readonly
+            class="mb-3"
+            autocomplete="username"
+            hidden
+          />
+        </b-form-group>
+        <b-form-group label="현재 비밀번호">
+          <b-form-input
+            v-model="currentPassword"
+            type="password"
+            placeholder="현재 비밀번호를 입력하세요"
+            autocomplete="current-password"
+            class="mb-3"
+            required
+          />
+        </b-form-group>
+        <b-form-group label="새 비밀번호">
+          <b-form-input
+            v-model="newPassword"
+            type="password"
+            placeholder="새 비밀번호를 입력하세요"
+            autocomplete="current-password"
+            class="mb-3"
+            required
+          />
+        </b-form-group>
+        <b-form-group label="새 비밀번호 확인">
+          <b-form-input
+            v-model="confirmPassword"
+            type="password"
+            placeholder="새 비밀번호를 다시 입력하세요"
+            autocomplete="current-password"
+            class="mb-3"
+            required
+          />
+        </b-form-group>
+        <div class="d-grid">
+          <b-button type="submit" variant="primary">변경</b-button>
+        </div>
+      </b-form>
+      <template #footer>
+        <b-button @click="passwordChangeModalHide" variant="primary"
+          >취소</b-button
+        >
+      </template>
+    </b-modal>
+
+    <b-modal
+      v-model:show="adminbuttonModal"
+      @hide="adminbuttonModalHide"
+      title="계정 관리"
+      size="md"
+      class="crm-password-change"
+    >
+      <b-tabs pills card vertical active-nav-item-class="fw-bold">
+        <b-tab title="계정 만들기" active>
+          <b-form @submit.prevent="insertUser">
+            <b-form-group label="이름">
+              <b-form-input
+                v-model="newUserName"
+                type="text"
+                placeholder="이름을 입력하세요"
+                class="mb-3"
+                required
+              />
+            </b-form-group>
+            <b-form-group label="사번">
+              <b-form-input
+                v-model="newUserNo"
+                type="text"
+                placeholder="사번을 입력하세요"
+                autocomplete="username"
+                class="mb-3"
+                required
+              />
+            </b-form-group>
+            <b-form-group label="아이디">
+              <b-form-input
+                v-model="newUserId"
+                type="text"
+                placeholder="아이디를 입력하세요"
+                autocomplete="username"
+                class="mb-3"
+                required
+              />
+            </b-form-group>
+            <b-form-group label="비밀번호">
+              <b-form-input
+                v-model="newUserPassword"
+                type="password"
+                placeholder="비밀번호를 입력하세요"
+                autocomplete="new-password"
+                class="mb-3"
+                required
+              />
+            </b-form-group>
+            <b-form-group label="비밀번호 확인">
+              <b-form-input
+                v-model="newUserConfirmPassword"
+                type="password"
+                placeholder="비밀번호를 다시 입력하세요"
+                autocomplete="new-password"
+                class="mb-3"
+                required
+              />
+            </b-form-group>
+            <div class="d-grid">
+              <b-button type="submit" variant="primary">등록</b-button>
+            </div>
+          </b-form>
+        </b-tab>
+
+        <b-tab title="비밀번호 찾기">
+          <b-form @submit.prevent="findPassword">
+            <b-form-group label="아이디">
+              <b-form-input
+                v-model="findUserId"
+                type="text"
+                placeholder="아이디를 입력하세요"
+                autocomplete="username"
+                class="mb-3"
+                required
+              />
+            </b-form-group>
+
+            <b-form-group label="사번">
+              <b-form-input
+                v-model="findUserNo"
+                type="text"
+                placeholder="사번을 입력하세요"
+                class="mb-3"
+                required
+              />
+            </b-form-group>
+
+            <b-form-group label="비밀번호">
+              <b-form-input
+                v-model="getUserPw"
+                type="text"
+                placeholder="비밀번호"
+                class="mb-3"
+                readonly
+              />
+            </b-form-group>
+
+            <div class="d-grid">
+              <b-button type="submit" variant="primary">비밀번호 찾기</b-button>
+            </div>
+          </b-form>
+        </b-tab>
+      </b-tabs>
+      <template #footer>
+        <b-button @click="adminbuttonModalHide" variant="primary"
+          >취소</b-button
+        >
+      </template>
     </b-modal>
   </main>
 </template>

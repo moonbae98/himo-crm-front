@@ -87,7 +87,7 @@
 </template>
 
 <script>
-// import axios from "axios";
+import axios from "axios";
 
 import {
   BForm,
@@ -98,6 +98,7 @@ import {
 } from "bootstrap-vue-next";
 
 import AppLogo from "@/components/AppLogo.vue";
+import CryptoJS from "crypto-js";
 
 export default {
   name: "LoginView",
@@ -118,68 +119,76 @@ export default {
       autoLoginCheck: 0, // TODO: 자동로그인 기능 구현 필요
     };
   },
-//   mounted() {
-//   const autologinStr = localStorage.getItem('autologin');
+  mounted() {
+    const autologinStr = localStorage.getItem("autologin");
 
-//   if (autologinStr) {
-//     try {
-//       const autologin = JSON.parse(autologinStr);
-//       if (autologin.autoLoginCheck == 1 || autologin.autoLoginCheck === "1") {
-//         this.crmid = autologin.autoid;
-//         this.password = autologin.autopw;
-//         this.extNo = autologin.autoextno;
-//         this.autoLoginCheck = 1;
-//         // 자동로그인 실행
-//         this.onSubmit();
-//       } else {
-//         // 체크 아니면 autologin정보 삭제
-//         localStorage.removeItem("autologin");
-//         this.autoLoginCheck = 0;
-//       }
-//     } catch (e) {
-//       // 파싱 실패 시 제거
-//       localStorage.removeItem("autologin");
-//       this.autoLoginCheck = 0;
-//     }
-//   }
-// },
+    if (autologinStr) {
+      try {
+        const autologin = JSON.parse(autologinStr);
+        if (autologin.autoLoginCheck == 1 || autologin.autoLoginCheck === "1") {
+          this.crmid = autologin.autoid;
+          this.password = autologin.autopw;
+          this.extNo = autologin.autoextno;
+          this.autoLoginCheck = 1;
+          // 자동로그인 실행
+          this.onSubmit();
+        } else {
+          // 체크 아니면 autologin정보 삭제
+          localStorage.removeItem("autologin");
+          this.autoLoginCheck = 0;
+        }
+      } catch (e) {
+        // 파싱 실패 시 제거
+        localStorage.removeItem("autologin");
+        this.autoLoginCheck = 0;
+      }
+    }
+  },
 
   methods: {
     async onSubmit() {
       try {
-        // const crmid = this.crmid;
-        // const password = this.password;
-        // const extNo = this.extNo;
-        // const response = await axios.post("./login", {
-        //   crmid,
-        //   password,
-        //   extNo,
-        // });
+        const crmid = this.crmid;
+        const password = this.aesEncrypt(this.password, "himoadmin1234567");
+        const extNo = this.extNo;
+        const response = await axios.post("./login", {
+          crmid,
+          password,
+          extNo,
+        });
 
-        // console.log("로그인 성공:", response.data);
+        console.log("로그인 성공:", response.data);
 
         localStorage.setItem(
           "loginInfo",
           JSON.stringify({
             nodejs_connector_url: "http://122.49.74.230:8087",
-            userid: "user"+this.extNo, // 사용자 ID
+            userid: "user" + this.extNo, // 사용자 ID
             exten: this.extNo,
             company_id: "himo", // 회사 ID
             passwd: "user!2322",
             first_status: "0",
             from_ui: "API",
+
+            // nodejs_connector_url: "http://122.49.74.230:8087",
+            // userid: "test9260", // 사용자 ID
+            // exten: "9260",
+            // company_id: "himo", // 회사 ID
+            // passwd: "user!2322",
+            // first_status: "0",
+            // from_ui: "API",
           })
         );
-        
-        // localStorage.setItem(
-        //   "autologin",
-        //   JSON.stringify({
-        //     autoLoginCheck: this.autoLoginCheck,
-        //     autoid: crmid,
-        //     autopw: password,
-        //     autoextno: extNo,
-        //   })
-        // );
+
+        localStorage.setItem(
+          "autologin",
+          JSON.stringify({
+            autoLoginCheck: this.autoLoginCheck,
+            autoid: crmid,
+            autopw: password,
+            autoextno: extNo,
+          })
+        );
 
         // 로그인 성공: 홈으로 이동
         this.$router.push({ name: "Home" });
@@ -199,6 +208,25 @@ export default {
         console.log(error);
         this.$router.push({ name: "Home" });
       }
+    },
+
+    aesEncrypt(plainText, key) {
+      const keyUtf8 = CryptoJS.enc.Utf8.parse(key);
+      const encrypted = CryptoJS.AES.encrypt(plainText, keyUtf8, {
+        mode: CryptoJS.mode.ECB,
+        padding: CryptoJS.pad.Pkcs7,
+      });
+      return encrypted.toString(); // 기본 Base64 반환
+    },
+
+    aesDecrypt(encryptedBase64, key) {
+      const keyUtf8 = CryptoJS.enc.Utf8.parse(key);
+      const decrypted = CryptoJS.AES.decrypt(encryptedBase64, keyUtf8, {
+        mode: CryptoJS.mode.ECB,
+        padding: CryptoJS.pad.Pkcs7,
+      });
+      // 복호화된 워드 배열을 UTF-8 문자열로 변환
+      return decrypted.toString(CryptoJS.enc.Utf8);
     },
   },
 };
