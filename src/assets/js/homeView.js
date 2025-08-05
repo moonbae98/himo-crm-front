@@ -52,11 +52,10 @@ export default {
       logoutshowConfirm: false,
       crminfo: null,
       crmitems: [],
-
+      selectedtodayRowIndex: null,
+      selectedcallRowIndex: null,
       todayCallList: [],
-
       callbacklistitems: [],
-
       consultlistitems: [],
       customerInfo: { gender: "" },
       consultInfo: {},
@@ -275,7 +274,6 @@ export default {
       localStorage.setItem("mainextno", this.mainextno);
     };
     const response = await axios.get("./session");
-    console.log("Session response:", response.data);
     window.parseMemberStatus = (statusCode) => {
       if (statusCode === "0" || statusCode === 0) {
         this.activeMenu = "mbtn1";
@@ -766,7 +764,7 @@ export default {
       }
     },
 
-    async c_info_retrieve(item) {
+    async c_info_retrieve(item, index) {
       try {
         const response = await axios.post("./c_info_retrieve", {
           hpNo: item.callPhoneno,
@@ -779,9 +777,18 @@ export default {
       } catch (error) {
         alert("통화내역 조회에 실패했습니다.");
       }
+      this.selectedtodayRowIndex = index;
+      const rows = this.$refs.calltodayTable.$el.querySelectorAll('tbody tr');
+      const callrows = this.$refs.callTable.$el.querySelectorAll('tbody tr');
+      rows.forEach(row => row.classList.remove('today-table-active'));
+      callrows.forEach(row => row.classList.remove('today-table-active'));
+      if (rows[index]) {
+        rows[index].classList.add('today-table-active');
+      }
     },
 
-    async c_info_retrieve_row(item) {
+
+    async c_info_retrieve_row(item, index) {
       try {
         const response = await axios.post("./c_info_retrieve", {
           hpNo: item.callPhoneno,
@@ -794,9 +801,18 @@ export default {
       } catch (error) {
         alert("통화내역 조회에 실패했습니다.");
       }
+      this.selectedcallRowIndex =index;
+
+      const rows = this.$refs.callTable.$el.querySelectorAll('tbody tr');
+      const todayrows = this.$refs.calltodayTable.$el.querySelectorAll('tbody tr');
+      rows.forEach(row => row.classList.remove('today-table-active'));
+      todayrows.forEach(row => row.classList.remove('today-table-active'));
+      if (rows[index]) {
+        rows[index].classList.add('today-table-active');
+      }
     },
 
-    async consult_retrieve_row(item) {
+    async consult_retrieve_row(item, index) {
       try {
         const response = await axios.post("./c_info_retrieve", {
           hpNo: item.CALL_PHONENO,
@@ -806,10 +822,13 @@ export default {
           Array.isArray(response.data) && response.data.length > 0
             ? response.data[0]
             : null;
-
-        console.log(this.consultInfo);
       } catch (error) {
         alert("통화내역 조회에 실패했습니다.");
+      }
+      const rows = this.$refs.consultTable.$el.querySelectorAll('tbody tr');
+      rows.forEach(row => row.classList.remove('today-table-active'));
+      if (rows[index]) {
+        rows[index].classList.add('today-table-active');
       }
     },
 
@@ -916,7 +935,7 @@ export default {
       }
     },
 
-    async callbackset(item) {
+    async callbackset(item, index) {
       this.callbacknumber = this.formatPhoneNumber(item.backPhoneno);
       this.callbackdate = item.backDate;
       this.callbackinnumber = this.formatPhoneNumber(item.backCallNo);
@@ -927,6 +946,11 @@ export default {
         this.callbackcustname = response.data.mbsViewNm || "";
       } catch (error) {
         console.error("콜백 고객명 조회 실패:", error);
+      }
+      const rows = this.$refs.callbackTable.$el.querySelectorAll('tbody tr');
+      rows.forEach(row => row.classList.remove('today-table-active'));
+      if (rows[index]) {
+        rows[index].classList.add('today-table-active');
       }
     },
 

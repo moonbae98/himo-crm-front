@@ -110,9 +110,15 @@
               :current-page="currentPage"
               @row-clicked="c_info_retrieve_row"
               @row-dblclicked="popupCrmInfo"
+              ref="callTable"
               striped
               hover
-            >
+            > 
+              <template #cell(deptName)="data">
+                <span class="ellipsis-cell" :title="data.value">{{
+                  data.value
+                }}</span>
+              </template>
               <template #cell(callDate)="data">
                 <span class="ellipsis-cell" :title="data.value">{{
                   data.value
@@ -144,6 +150,7 @@
             v-model="currentPage"
             :total-rows="rows"
             :per-page="perPage"
+            @input="onPageChange"
             align="center"
           />
         </b-card>
@@ -157,9 +164,8 @@
               :items="todayCallList"
               :fields="calllistfields"
               @row-clicked="c_info_retrieve"
+              ref="calltodayTable"
               :per-page="todayperPage"
-              striped
-              hover
             >
             </b-table>
           </div>
@@ -413,8 +419,7 @@
               :items="callbacklistitems"
               :fields="callbacklistfields"
               @row-clicked="callbackset"
-              striped
-              hover
+              ref="callbackTable"
               small
             ></b-table>
           </b-col>
@@ -570,6 +575,7 @@
               :per-page="consultperPage"
               :current-page="consultcurrentPage"
               class="consult-table"
+              ref="consultTable"
               striped
               hover
               small

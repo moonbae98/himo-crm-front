@@ -87,6 +87,7 @@
 </template>
 
 <script>
+/* eslint-disable */
 import axios from "axios";
 
 import {
@@ -157,26 +158,25 @@ export default {
           extNo,
         });
 
-        console.log("로그인 성공:", response.data);
 
         localStorage.setItem(
           "loginInfo",
           JSON.stringify({
-            nodejs_connector_url: "http://122.49.74.230:8087",
-            userid: "user" + this.extNo, // 사용자 ID
-            exten: this.extNo,
-            company_id: "himo", // 회사 ID
-            passwd: "user!2322",
-            first_status: "0",
-            from_ui: "API",
+             nodejs_connector_url: "http://122.49.74.230:8087",
+             userid: "user" + this.extNo, // 사용자 ID
+             exten: this.extNo,
+             company_id: "himo", // 회사 ID
+             passwd: "user!2322",
+             first_status: "0",
+             from_ui: "API",
 
-            // nodejs_connector_url: "http://122.49.74.230:8087",
-            // userid: "test9260", // 사용자 ID
-            // exten: "9260",
-            // company_id: "himo", // 회사 ID
-            // passwd: "user!2322",
-            // first_status: "0",
-            // from_ui: "API",
+            //nodejs_connector_url: "http://122.49.74.230:8087",
+            //userid: "test9260", // 사용자 ID
+            //exten: "9260",
+            //company_id: "himo", // 회사 ID
+            //passwd: "user!2322",
+            //first_status: "0",
+            //from_ui: "API",
           })
         );
 

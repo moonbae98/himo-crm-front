@@ -407,6 +407,7 @@ body {
 
 }
 
+
 .logged-in-out-buttons-wrap {
   display: flex;
   justify-content: center;
@@ -909,11 +910,19 @@ body {
 .theme-brown .nav-pills .nav-link.active{
   background-color: var(--theme-brown-primary-color);
 }
+
+.today-table-active > td {
+    background-color: #aeaeaf !important;
+  }
+
+
+
+
 /* Table Override */
 .table {
-  --bs-border-color: #f9f9f9;
+  --bs-border-color: #f2f4f6;
   table-layout: fixed;
-  border-radius: (--bs-border-radius);
+  border-radius: var(--bs-border-radius);
 
   &.table-sm {
     th {
@@ -927,6 +936,11 @@ body {
     }
   }
   
+  tr:hover > td{
+    background-color: #aeaeaf !important;
+  }
+
+
   th {
     padding: 0 1rem;
     height: 34px;
