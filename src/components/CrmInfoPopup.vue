@@ -3,7 +3,12 @@
     <div class="crm-popup-container">
       <header class="crm-popup-header">
         <h2 class="popup-title">CRM 정보</h2>
-        <button @click="closePopup" type="button" class="btn-close" aria-label="Close"></button>
+        <button
+          @click="closePopup"
+          type="button"
+          class="btn-close"
+          aria-label="Close"
+        ></button>
       </header>
 
       <div class="crm-info-content">
@@ -50,32 +55,33 @@
           </div>
           <div class="info-group">
             <b-form-group label="고객 구분">
-              <b-form-select v-model="customerInfo.mastGubun" :options="customerTypes" />
+              <b-form-select
+                v-model="customerInfo.mastGubun"
+                :options="customerTypes"
+              />
             </b-form-group>
           </div>
           <div class="info-group">
             <b-form-group label="문자 수신">
-              <b-form-select v-model="customerInfo.mastSmsYn" :options="smsReceives" />
+              <b-form-select
+                v-model="customerInfo.mastSmsYn"
+                :options="smsReceives"
+              />
             </b-form-group>
           </div>
           <div class="info-group full-width">
             <b-form-group label="상담내역">
-              <b-form-textarea
-                v-model="safeCallRemark"
-                rows="6"
-                no-resize />
+              <b-form-textarea v-model="safeCallRemark" rows="6" no-resize />
             </b-form-group>
           </div>
         </div>
       </div>
 
       <div class="crm-popup-footer">
-        <b-button
-          class="btn btn-secondary"
-          @click="infopopupclose"
-          >취소</b-button>
-        <b-button class="btn btn-primary" @click="crminfosave"
-          >저장</b-button>
+        <b-button class="btn btn-secondary" @click="infopopupclose"
+          >취소</b-button
+        >
+        <b-button class="btn btn-primary" @click="crminfosave">저장</b-button>
       </div>
     </div>
   </div>
@@ -103,19 +109,17 @@ export default {
     return {
       callPhoneno: "",
       callDate: "",
-      customerInfo: {callCustname: ""}, // 고객 정보 저장
+      customerInfo: { callCustname: "" }, // 고객 정보 저장
       genders: [
-        { text: "성별", value: "", disabled: true },
         { text: "여성", value: "0", disabled: false },
         { text: "남성", value: "1", disabled: false },
       ],
       customerTypes: [
-        { text: "고객 구분", value: "", disabled: true },
         { text: "신규 고객", value: "0", disabled: false },
         { text: "기존 고객", value: "1", disabled: false },
+        { text: "기타 고객", value: "2", disabled: false },
       ],
       smsReceives: [
-        { text: "문자 수신", value: "", disabled: true },
         { text: "수신", value: "Y", disabled: false },
         { text: "수신거부", value: "N", disabled: false },
       ],
@@ -130,6 +134,24 @@ export default {
   },
   methods: {
     async crminfosave() {
+      if (!this.customerInfo.callCustname) {
+        alert("고객명을 입력하세요!!");
+        return;
+      }
+
+      if (!this.customerInfo.mastSmsYn) {
+        alert("문자수신값을 입력하세요!!");
+        return;
+      }
+      if (!this.customerInfo.mastGubun) {
+        alert("고객구분값과 입력하세요!!");
+        return;
+      }
+      if (!this.customerInfo.gender) {
+        alert("성별을 입력하세요!!");
+        return;
+      }
+
       try {
         const payload = {
           callPhoneno: this.customerInfo.callPhoneno,
@@ -147,6 +169,12 @@ export default {
           usercode: localStorage.getItem("usercode"),
         };
         await axios.post("./consultations", payload);
+
+        if (window.opener && !window.opener.closed) {
+          window.opener.sessionStorage.setItem("isRefreshing", "true");
+          window.opener.location.reload();
+        }
+        alert("CRM 정보가 저장되었습니다.");
         window.close();
       } catch (error) {
         alert("CRM 정보 저장에 실패했습니다.");
@@ -166,14 +194,18 @@ export default {
           Array.isArray(response.data) && response.data.length > 0
             ? response.data[0]
             : null;
-        console.log("고객 정보 조회 성공:", this.customerInfo);
+        if (!this.customerInfo.mastGubun && !this.customerInfo.mastSmsYn) {
+          this.customerInfo.mastGubun = "0";
+          this.customerInfo.mastSmsYn = "Y";
+        }
+        console.log("고객 정보:", this.customerInfo);
       } catch (error) {
         alert("통화내역 조회에 실패했습니다.");
       }
     },
     closePopup() {
       if (window.opener) {
-          window.close()
+        window.close();
       }
     },
   },

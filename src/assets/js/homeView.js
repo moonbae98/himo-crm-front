@@ -21,6 +21,8 @@ import axios from "axios";
 import CryptoJS from "crypto-js";
 import AppLogo from "@/components/AppLogo.vue";
 import ThemeSwitch from "@/components/ThemeSwitch.vue";
+import { ref } from "vue";
+import messageTemplates from "./messageTemplates";
 
 export default {
   name: "HomeView",
@@ -49,7 +51,6 @@ export default {
       showIpcc: false,
       user: null,
       telnumber: null,
-      logoutshowConfirm: false,
       crminfo: null,
       crmitems: [],
       selectedtodayRowIndex: null,
@@ -105,12 +106,15 @@ export default {
       visitBranch: "",
       maincallnumber: "",
       currentTime: "",
+      logoutModal: false,
       testModal: false,
       crminfomodal: false,
       consultationModal: false,
       designModal: false,
       passwordChangeModal: false,
       adminbuttonModal: false,
+      MessageChkModal: false,
+      firstChkModal: false,
       selectedDesign: null,
       popupOffset: 0,
       callbackcountnum: null,
@@ -125,21 +129,31 @@ export default {
       findUserId: "",
       findUserNo: "",
       getUserPw: "",
+      selectedFile: null,
+      uploading: false,
+      capsLockOn: {
+        current: false,
+        new: false,
+        confirm: false,
+        input: false,
+        input2: false,
+      },
       calllistfields: [
+        { key: "lastSaupjang", label: "최종방문지점", sortable: true },
+        { key: "callCustcode", label: "고객코드", sortable: true },
+        { key: "callCustname", label: "고객명", sortable: true },
+        { key: "callPhoneno", label: "전화번호", sortable: true },
         { key: "callDate", label: "통화일자", sortable: true },
-        { key: "callPhoneno", label: "전화번호" },
-        { key: "callCustcode", label: "고객코드" },
-        { key: "callCustname", label: "고객명" },
-        { key: "callCnt", label: "횟수" },
+        { key: "callCnt", label: "횟수", sortable: true },
         {
           key: "callStatus",
           label: "상태",
-          formatter: (value) => (value === "Y" ? "통화" : "미통화"),
+          formatter: (value) => (value === "N" ? "미통화" : "통화"),
           sortable: true,
         },
       ],
       callbacklistfields: [
-        { key: "backDate", label: "통화일자" },
+        { key: "backDate", label: "통화일자", sortable: true },
         {
           key: "backPhoneno",
           label: "전화번호",
@@ -152,10 +166,12 @@ export default {
             }
             return value;
           },
+          sortable: true,
         },
         {
           key: "backCallNo",
           label: "요청번호",
+          sortable: true,
           formatter: (value) => {
             if (typeof value === "string" && value.length === 11) {
               return `${value.slice(0, 3)}-${value.slice(3, 7)}-${value.slice(
@@ -167,9 +183,14 @@ export default {
           },
         },
         {
+          key: "customerName",
+          label: "고객명",
+          sortable: true,
+        },
+        {
           key: "backStatus",
           label: "상태",
-          formatter: (value) => (value === "Y" ? "통화" : "미통화"),
+          formatter: (value) => (value === "N" ? "미통화" : "통화"),
         },
       ],
       options: [
@@ -180,7 +201,12 @@ export default {
       crmitemfields: [
         {
           key: "deptName",
-          label: "사업장",
+          label: "수신지점",
+          sortable: true,
+        },
+        {
+          key: "callExtNo",
+          label: "수신번호",
           sortable: true,
         },
         {
@@ -196,15 +222,18 @@ export default {
         {
           key: "callPhoneno",
           label: "등록전화번호",
+          sortable: true,
         },
         {
           key: "callCustname",
           label: "고객명",
+          sortable: true,
         },
         {
           key: "callStatus",
           label: "상태",
-          formatter: (value) => (value === "Y" ? "통화" : "미통화"),
+          formatter: (value) => (value === "N" ? "미통화" : "통화"),
+          sortable: true,
         },
         {
           key: "rsrvDt",
@@ -219,22 +248,27 @@ export default {
             }
             return value;
           },
+          sortable: true,
         },
         {
           key: "lastRsrvName",
           label: "최종예약내역",
+          sortable: true,
         },
         {
           key: "asCodeName",
-          label: "최종AS명",
+          label: "최종A/S명",
+          sortable: true,
         },
         {
           key: "asRemark",
-          label: "최종AS내역",
+          label: "최종A/S내역",
+          sortable: true,
         },
         {
           key: "callRemark",
           label: "상담내역",
+          sortable: true,
         },
       ],
       consultlistfields: [
@@ -246,15 +280,19 @@ export default {
         {
           key: "CALL_INSPHONE",
           label: "걸려온 전화번호",
+          sortable: true,
         },
-        { key: "CALL_PHONENO", label: "핸드폰번호" },
+        { key: "CALL_PHONENO", label: "핸드폰번호", sortable: true },
+
         {
           key: "CALL_CUSTNAME",
           label: "고객명",
+          sortable: true,
         },
         {
           key: "CALL_REMARK",
           label: "상담내역",
+          sortable: true,
         },
       ],
       todayperPage: 25,
@@ -263,17 +301,33 @@ export default {
       currentPage: 1,
       perPage: 10,
       mainextno: "",
+      MessageLabel: ref(""),
+      messageContent: "",
+      firstloginchk: "",
+      popups: [],
+      isRefresh: false,
+      currentTabId: null,
+      tabHeartbeat: null,
+      isTabDisabled: false,
+      deptcrmteam: "",
+      callbackintervalId: null,
+      callbackisDestroyed: false
     };
   },
 
   async mounted() {
     this.loadIPCCInfoFromStorage();
+    if (!this.checkSingleTab()) {
+      return;
+    }
+    const response = await axios.get("./session");
+    const autologinStr = localStorage.getItem("autologin");
+
     window.parseLogin = (data1, data2, data3, data4, data5, data6, data8) => {
       this.activeDangzic = data8;
       this.mainextno = data6;
       localStorage.setItem("mainextno", this.mainextno);
     };
-    const response = await axios.get("./session");
     window.parseMemberStatus = (statusCode) => {
       if (statusCode === "0" || statusCode === 0) {
         this.activeMenu = "mbtn1";
@@ -288,9 +342,10 @@ export default {
     this.visitBranch = response.data.extNo.deptNm;
     this.visitBranchCode = response.data.extNo.locSaupjang;
     this.user = response.data;
+    this.deptcrmteam = this.user?.extNo?.locSaupjang;
 
     await this.fetchTodayCallList();
-    window.parseCallEvent = (
+    window.parseCallEvent = async (
       kind,
       callerNumber,
       data2,
@@ -302,15 +357,23 @@ export default {
     ) => {
       //전화받기
       if (kind === "IR") {
+        const sessionResponse = await axios.get("./session");
+        if (!sessionResponse.data || !sessionResponse.data.user) {
+          console.log("세션이 만료되어 팝업을 열지 않습니다.");
+          return;
+        }
         this.telnumber = callerNumber;
         this.callTime = callTime;
-        this.sendCallEventToServer(callerNumber, callTime);
+        this.sendCallEventToServer(kind, callerNumber, callTime);
         if (document.visibilityState === "visible") {
           setTimeout(() => {
             this.showCrmInfomodal(callerNumber, callTime);
-          }, 1000);
+          }, 300);
         } else {
-          this.showCrmInfo(callerNumber, callTime);
+          setTimeout(() => {
+            this.showCrmInfo(callerNumber, callTime);
+            this.showNotification(callerNumber, callTime);
+          }, 300);
         }
         setTimeout(() => {
           this.homeinfo_retrieve(callerNumber, callTime);
@@ -319,26 +382,21 @@ export default {
       if (kind === "ID") {
         this.receiveCall(callerNumber, callTime);
       }
-      //전화걸기
+      if (kind === "PICKUP") {
+        this.pickupCall(callerNumber, callTime);
+      }
+      // 전화걸기
       if (kind === "OR") {
         this.telnumber = data2;
-        this.sendCallEventToServer(data2, callTime);
-        if (document.visibilityState === "visible") {
-          setTimeout(() => {
-            this.showCrmInfomodal(data2, callTime);
-          }, 1000);
-        } else {
-          this.showCrmInfo(data2, callTime);
-        }
-        setTimeout(() => {
-          this.homeinfo_retrieve(data2, callTime);
-        }, 500);
+        this.sendCallEventToServer(kind, data2, callTime);
       }
       if (kind === "OD") {
         this.receiveCall(data2, callTime);
       }
     };
-    window.logoutfromserver = function () {};
+    window.logoutfromserver = () => {
+      this.logout();
+    };
     window.parseHangupEvent = (
       DATA1,
       DATA2,
@@ -356,11 +414,13 @@ export default {
         iframe.contentWindow &&
         typeof iframe.contentWindow.SendCommand2Socket === "function"
       ) {
-        iframe.contentWindow.SendCommand2Socket(
-          `CMD|MEMBERSTATUS|0,${this.ipccLoginInfo.exten}`
-        );
+        setTimeout(() => {
+          iframe.contentWindow.SendCommand2Socket(
+            `CMD|MEMBERSTATUS|0,${this.ipccLoginInfo.exten}`
+          );
+        }, 500);
       } else {
-        // alert("IPCC 프레임이 준비되지 않았거나, 통신 함수가 없습니다.");
+        console.log("IPCC 프레임이 준비되지 않았거나, 통신 함수가 없습니다.");
       }
     };
     window.parsePhoneStatus = function () {};
@@ -368,9 +428,38 @@ export default {
     await this.callbacklist();
     this.updateCurrentTime();
     setInterval(this.updateCurrentTime, 1000);
-    this.callbackcount();
-  },
+    this.callbackstartPolling();
+    this.firstlogincheck();
+    await this.requestNotificationPermission();
+    sessionStorage.setItem("browserClosing", "false");
 
+    // 키 이벤트로 새로고침 감지
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "F5" || (e.ctrlKey && (e.key === "r" || e.key === "R"))) {
+        sessionStorage.setItem("isRefreshing", "true");
+      }
+    });
+
+    window.addEventListener("beforeunload", this.handleBrowserClose);
+
+    window.addEventListener("storage", (e) => {
+      // 다른 탭에서 로그아웃 했을 때
+      if (e.key === "autologin" && e.newValue === null) {
+        console.log("다른 탭에서 로그아웃됨 - 페이지 새로고침");
+        location.reload();
+      }
+
+      // 또는 특별한 로그아웃 플래그 사용
+      if (e.key === "logout-trigger" && e.newValue === "true") {
+        localStorage.removeItem("logout-trigger"); // 즉시 제거
+        location.reload();
+      }
+    });
+
+    if (this.deptcrmteam == "1003") {
+      await this.startPolling();
+    }
+  },
   computed: {
     rows() {
       return this.crmitems.length;
@@ -378,6 +467,9 @@ export default {
     consultRows() {
       return this.consultlistitems.length;
     },
+  },
+  beforeUnmount(){
+    this.stopPolling();
   },
 
   methods: {
@@ -388,7 +480,7 @@ export default {
       const loginInfo = localStorage.getItem("loginInfo");
       if (loginInfo) {
         try {
-          this.ipccLoginInfo = JSON.parse(loginInfo);
+          this.ipccLoginInfo = JSON.parse(localStorage.getItem("loginInfo"));
         } catch (error) {
           console.error("로그인 정보 파싱 실패:", error);
         }
@@ -407,37 +499,69 @@ export default {
     // IPCC 프레임이 로드되면 연결을 시도합니다.
     onIpccFrameLoad() {
       if (this.ipccLoginInfo) {
-        setTimeout(() => {
+          console.log("IPCC 프레임이 로드되었습니다.");
           this.connectToIPCC();
-        }, 0);
       }
     },
 
     // IPCC 서버에 연결합니다.
     connectToIPCC() {
       if (!this.ipccLoginInfo) return;
-      try {
-        const iframe = this.$refs.ipccFrame;
-        if (iframe && iframe.contentWindow) {
-          setTimeout(() => {
-            if (iframe.contentWindow.ConnectServer) {
-              const info = this.ipccLoginInfo;
-              iframe.contentWindow.ConnectServer(
-                info.nodejs_connector_url,
-                info.company_id,
-                info.userid,
-                info.exten,
-                this.sha512Hash(info.passwd),
-                info.first_status,
-                info.from_ui
-              );
-            }
-          }, 0);
+      const iframe = this.$refs.ipccFrame;
+      if (!iframe || !iframe.contentWindow) return;
+      const info = this.ipccLoginInfo;
+
+
+      const tryConnect = () => {
+        try {
+          if (
+            iframe.contentWindow.ConnectServer &&
+            typeof iframe.contentWindow.ConnectServer === "function"
+          ) {
+            iframe.contentWindow.ConnectServer(
+              info.nodejs_connector_url,
+              info.company_id,
+              info.userid,
+              info.exten,
+              this.sha512Hash(info.passwd),
+              info.first_status,
+              info.from_ui
+            );
+          } else {
+            setTimeout(tryConnect, 50);
+          }
+        } catch (error) {
+          console.error("IPCC 연결 실패:", error);
         }
-      } catch (error) {
-        console.error("IPCC 연결 실패:", error);
-      }
+      };
+      tryConnect();
     },
+
+    // IPCC 서버에 연결합니다.
+    // connectToIPCC() {
+    //   if (!this.ipccLoginInfo) return;
+    //   try {
+    //     const iframe = this.$refs.ipccFrame;
+    //     if (iframe && iframe.contentWindow) {
+    //       setTimeout(() => {
+    //         if (iframe.contentWindow.ConnectServer) {
+    //           const info = this.ipccLoginInfo;
+    //           iframe.contentWindow.ConnectServer(
+    //             info.nodejs_connector_url,
+    //             info.company_id,
+    //             info.userid,
+    //             info.exten,
+    //             this.sha512Hash(info.passwd),
+    //             info.first_status,
+    //             info.from_ui
+    //           );
+    //         }
+    //       }, 0);
+    //     }
+    //   } catch (error) {
+    //     console.error("IPCC 연결 실패:", error);
+    //   }
+    // },
 
     // 전화 걸기 함수
     makeCall() {
@@ -456,7 +580,7 @@ export default {
         const command = `CLICKDIAL|${cid},${this.phoneNumber}`;
         iframe.contentWindow.SendCommand2Socket(`CMD|${command}`);
       } else {
-        alert("IPCC 프레임이 준비되지 않았거나, 통신 함수가 없습니다.");
+        console.log("IPCC 프레임이 준비되지 않았거나, 통신 함수가 없습니다.");
       }
     },
 
@@ -475,7 +599,7 @@ export default {
         const command = `CLICKDIAL|${cid},${this.callbacknumber}`;
         iframe.contentWindow.SendCommand2Socket(`CMD|${command}`);
       } else {
-        alert("IPCC 프레임이 준비되지 않았거나, 통신 함수가 없습니다.");
+        console.log("IPCC 프레임이 준비되지 않았거나, 통신 함수가 없습니다.");
       }
     },
 
@@ -508,7 +632,7 @@ export default {
           `CMD|MEMBERSTATUS|${statusCode},${exten},${statusCode}`
         );
       } else {
-        alert("IPCC 프레임이 준비되지 않았거나, 통신 함수가 없습니다.");
+        console.log("IPCC 프레임이 준비되지 않았거나, 통신 함수가 없습니다.");
       }
     },
 
@@ -524,14 +648,13 @@ export default {
           `CMD|RECEIVE|${this.ipccLoginInfo.exten}`
         );
       } else {
-        alert("IPCC 프레임이 준비되지 않았거나, 통신 함수가 없습니다.");
+        console.log("IPCC 프레임이 준비되지 않았거나, 통신 함수가 없습니다.");
       }
     },
 
     // 전화 종료 함수
     hangdown() {
       const iframe = this.$refs.ipccFrame;
-      //  console.log(this.b64_sha512("2500040")); /* 이효승과장님 암호화 코드. */
       if (
         iframe &&
         iframe.contentWindow &&
@@ -541,7 +664,7 @@ export default {
           `CMD|HANGUP|${this.ipccLoginInfo.exten}`
         );
       } else {
-        alert("IPCC 프레임이 준비되지 않았거나, 통신 함수가 없습니다.");
+        console.log("IPCC 프레임이 준비되지 않았거나, 통신 함수가 없습니다.");
       }
     },
 
@@ -554,46 +677,49 @@ export default {
       ) {
         iframe.contentWindow.SendCommand2Socket(`CMD|LOGOUT`);
       } else {
-        alert("IPCC 프레임이 준비되지 않았거나, 통신 함수가 없습니다.");
+        console.log("IPCC 프레임이 준비되지 않았거나, 통신 함수가 없습니다.");
       }
     },
-    dolbtn() {
-      this.activeDangzic = "A";
-      const iframe = this.$refs.ipccFrame;
-      if (
-        iframe &&
-        iframe.contentWindow &&
-        typeof iframe.contentWindow.SendCommand2Socket === "function"
-      ) {
-        iframe.contentWindow.SendCommand2Socket(
-          `CMD|FORWARDING|${this.ipccLoginInfo.exten},${this.dangzicextno},A`
-        );
-        alert("착신전환 되었습니다.");
-      } else {
-        alert("IPCC 프레임이 준비되지 않았거나, 통신 함수가 없습니다.");
+    async dolbtn() {
+      this.activeDangzic = "I";
+      try {
+        const response = await axios.post("./queue", {
+          member: this.user?.extNo?.extNo,
+          strType: this.activeDangzic,
+        });
+        alert("당직자 로그인 되었습니다.");
+      } catch (error) {
+        console.error("서버 통신 오류:", error);
       }
     },
-    dolobtn() {
-      this.activeDangzic = "N";
-      const iframe = this.$refs.ipccFrame;
-      if (
-        iframe &&
-        iframe.contentWindow &&
-        typeof iframe.contentWindow.SendCommand2Socket === "function"
-      ) {
-        iframe.contentWindow.SendCommand2Socket(
-          `CMD|FORWARDING|${this.ipccLoginInfo.exten},${this.dangzicextno},N`
-        );
-        alert("착신전환 해제되었습니다.");
-      } else {
-        alert("IPCC 프레임이 준비되지 않았거나, 통신 함수가 없습니다.");
+    async dolobtn() {
+      this.activeDangzic = "O";
+      try {
+        const response = await axios.post("./queue", {
+          member: this.user?.extNo?.extNo,
+          strType: this.activeDangzic,
+        });
+        alert("당직자 로그아웃 되었습니다.");
+      } catch (error) {
+        console.error("서버 통신 오류:", error);
       }
     },
 
-    async sendCallEventToServer(phoneNumber, callTime) {
+    async sendToServer(type) {
       try {
-        // 필요한 데이터 구성 (예: 내선, 상담자, 전화번호 등)
+        const response = await axios.post("./queue", {
+          member: this.user?.extNo?.extNo,
+          strType: type,
+        });
+      } catch (error) {
+        console.error("서버 통신 오류:", error);
+      }
+    },
+
+    async sendCallEventToServer(kind, phoneNumber, callTime) {
+      try {
         const payload = {
+          kind: kind, // 통화 종류 (예: 수신, 발신)
           callPhoneno: phoneNumber,
           callTime: callTime, // 통화 시간
           userId: this.user?.user?.crmid, // 상담원 ID
@@ -601,6 +727,7 @@ export default {
           locSaupjang: this.user?.extNo?.locSaupjang, // 상담원 부서 번호
           callExtNo: this.user?.extNo?.extNo, // 내선번호
         };
+
         await axios.post("./call-event", payload);
 
         await this.fetchTodayCallList();
@@ -611,11 +738,32 @@ export default {
     async receiveCall(phoneNumber, callTime) {
       try {
         await axios.get("./receive-call", {
-          params: { callPhoneno: phoneNumber, callTime: callTime },
+          params: {
+            callPhoneno: phoneNumber,
+            callTime: callTime,
+            extNo: this.user?.extNo.extNo,
+            userId: this.user?.user?.crmid,
+          },
         });
         await this.fetchTodayCallList();
       } catch (error) {
         console.error("Failed to handle missed call:", error);
+      }
+    },
+
+    async pickupCall(phoneNumber, callTime) {
+      try {
+        await axios.post("./pickup-call", {
+          callPhoneno: phoneNumber,
+          callTime: callTime,
+          extNo: this.user?.extNo.extNo,
+          locSaupjang: this.user?.extNo?.locSaupjang,
+          callDept: this.user?.extNo?.deptNm,
+          userId: this.user?.user?.crmid,
+        });
+        await this.fetchTodayCallList();
+      } catch (error) {
+        console.error("Failed to handle pickup call:", error);
       }
     },
 
@@ -664,7 +812,6 @@ export default {
       return decrypted.toString(CryptoJS.enc.Utf8);
     },
 
-
     sha512Hash(password) {
       return CryptoJS.SHA512(password).toString();
     },
@@ -681,23 +828,42 @@ export default {
       this.consultationModal = false;
     },
     adminbuttonModalHide() {
-          this.newUserName = "",
-          this.newUserNo = "",
-          this.newUserId = "",
-          this.newUserPassword = "",
-          this.newUserConfirmPassword = "",
-          this.getUserPw = "",
-          this.findUserId = "",
-          this.findUserNo = "",
-      this.adminbuttonModal = false;
+      (this.newUserName = ""),
+        (this.newUserNo = ""),
+        (this.newUserId = ""),
+        (this.newUserPassword = ""),
+        (this.newUserConfirmPassword = ""),
+        (this.getUserPw = ""),
+        (this.findUserId = ""),
+        (this.findUserNo = ""),
+        (this.adminbuttonModal = false);
     },
+
+    firstChkModalHide() {
+      this.firstChkModal = false;
+    },
+
+    MessageChkModalHide() {
+      this.MessageChkModal = false;
+    },
+    logoutModalHide() {
+      this.logoutModal = false;
+    },
+
     async logout() {
       try {
+        this.cleanupTab();
+        this.closeAllPopups();
+        this.stopPolling();
+
+        localStorage.setItem("logout-trigger", "true");
+
         await axios.post("./logout");
         this.logoutshowConfirm = false;
         this.logout1();
         localStorage.removeItem("loginInfo");
         localStorage.removeItem("autologin");
+        this.sendToServer("O");
         this.$router.push({ name: "Login" });
       } catch (error) {
         console.error("Logout failed:", error);
@@ -709,24 +875,68 @@ export default {
         localStorage.setItem("hpNo", callPhoneno);
         localStorage.setItem("callDate", callTime);
 
-        // 계단식 위치 계산
         const baseLeft = 100;
         const baseTop = 100;
-        const step = 30; // 계단 간격
-        const maxOffset = 200; // 최대 이동값
+        const step = 30;
+        const maxOffset = 200;
 
         this.popupOffset = (this.popupOffset + step) % maxOffset;
+        const popupName = "crmPopup_" + Date.now();
 
-        window.open(
+        const popup = window.open(
           "/himo-crm/crm-popup",
-          "crmPopup_" + Date.now(),
-          `width=560,height=500,left=${baseLeft + this.popupOffset},top=${
+          popupName,
+          `width=560px,height=750px,left=${baseLeft + this.popupOffset},top=${
             baseTop + this.popupOffset
-          }`
+          },resizable=no`
         );
+
+        if (popup && !popup.closed) {
+          // 여러 단계로 강제 포커스
+          const minWidth = 560;
+          const minHeight = 500;
+          const forceFocus = () => {
+            try {
+              popup.focus();
+              popup.blur();
+              popup.focus();
+
+              // 창 위치 강제 이동 (포커스 유도)
+              popup.moveTo(
+                baseLeft + this.popupOffset - 1,
+                baseTop + this.popupOffset - 1
+              );
+              popup.moveTo(
+                baseLeft + this.popupOffset,
+                baseTop + this.popupOffset
+              );
+            } catch (e) {
+              console.log("Focus attempt failed:", e);
+            }
+          };
+
+          this.popups.push(popup);
+
+          const checkClosed = setInterval(() => {
+            if (popup.closed) {
+              this.popups = this.popups.filter((p) => p !== popup);
+              clearInterval(checkClosed);
+            }
+          }, 1000);
+        }
       } catch (error) {
         console.error("Failed to fetch CRM info:", error);
       }
+    },
+
+    // 모든 팝업 닫기 함수
+    closeAllPopups() {
+      this.popups.forEach((popup) => {
+        if (popup && !popup.closed) {
+          popup.close();
+        }
+      });
+      this.popups = []; // 배열 초기화
     },
 
     popupCrmInfo(item) {
@@ -764,6 +974,24 @@ export default {
       }
     },
 
+    async NotifiCrmInfo(callPhoneno, callTime) {
+      try {
+        await axios
+          .post("./crm-popup-info", {
+            hpNo: callPhoneno,
+            callDate: callTime,
+          })
+          .then((response) => {
+            this.crminfo = response.data;
+          })
+          .catch((error) => {
+            console.error("CRM 정보 조회 실패:", error);
+          });
+      } catch (error) {
+        console.error("CRM 정보 조회 실패:", error);
+      }
+    },
+
     async c_info_retrieve(item, index) {
       try {
         const response = await axios.post("./c_info_retrieve", {
@@ -774,19 +1002,20 @@ export default {
           Array.isArray(response.data) && response.data.length > 0
             ? response.data[0]
             : null;
+
+        console.log(this.customerInfo);
       } catch (error) {
         alert("통화내역 조회에 실패했습니다.");
       }
       this.selectedtodayRowIndex = index;
-      const rows = this.$refs.calltodayTable.$el.querySelectorAll('tbody tr');
-      const callrows = this.$refs.callTable.$el.querySelectorAll('tbody tr');
-      rows.forEach(row => row.classList.remove('today-table-active'));
-      callrows.forEach(row => row.classList.remove('today-table-active'));
+      const rows = this.$refs.calltodayTable.$el.querySelectorAll("tbody tr");
+      const callrows = this.$refs.callTable.$el.querySelectorAll("tbody tr");
+      rows.forEach((row) => row.classList.remove("today-table-active"));
+      callrows.forEach((row) => row.classList.remove("today-table-active"));
       if (rows[index]) {
-        rows[index].classList.add('today-table-active');
+        rows[index].classList.add("today-table-active");
       }
     },
-
 
     async c_info_retrieve_row(item, index) {
       try {
@@ -801,14 +1030,15 @@ export default {
       } catch (error) {
         alert("통화내역 조회에 실패했습니다.");
       }
-      this.selectedcallRowIndex =index;
+      this.selectedcallRowIndex = index;
 
-      const rows = this.$refs.callTable.$el.querySelectorAll('tbody tr');
-      const todayrows = this.$refs.calltodayTable.$el.querySelectorAll('tbody tr');
-      rows.forEach(row => row.classList.remove('today-table-active'));
-      todayrows.forEach(row => row.classList.remove('today-table-active'));
+      const rows = this.$refs.callTable.$el.querySelectorAll("tbody tr");
+      const todayrows =
+        this.$refs.calltodayTable.$el.querySelectorAll("tbody tr");
+      rows.forEach((row) => row.classList.remove("today-table-active"));
+      todayrows.forEach((row) => row.classList.remove("today-table-active"));
       if (rows[index]) {
-        rows[index].classList.add('today-table-active');
+        rows[index].classList.add("today-table-active");
       }
     },
 
@@ -825,10 +1055,10 @@ export default {
       } catch (error) {
         alert("통화내역 조회에 실패했습니다.");
       }
-      const rows = this.$refs.consultTable.$el.querySelectorAll('tbody tr');
-      rows.forEach(row => row.classList.remove('today-table-active'));
+      const rows = this.$refs.consultTable.$el.querySelectorAll("tbody tr");
+      rows.forEach((row) => row.classList.remove("today-table-active"));
       if (rows[index]) {
-        rows[index].classList.add('today-table-active');
+        rows[index].classList.add("today-table-active");
       }
     },
 
@@ -841,6 +1071,42 @@ export default {
       } catch (e) {
         alert("오늘 통화내역 조회 실패");
       }
+    },
+
+    startPolling() {
+      // 기존 인터벌이 있으면 정리
+      if (this.intervalId) {
+        clearInterval(this.intervalId);
+      }
+
+      // 5초마다 실행
+      this.intervalId = setInterval(() => {
+        this.fetchTodayCallList();
+      }, 5000);
+    },
+
+    stopPolling() {
+      if (this.intervalId) {
+        clearInterval(this.intervalId);
+        this.intervalId = null;
+      }
+    },
+
+    callbackstartPolling(){
+      this.callbackcount(); // 즉시 실행
+        this.callbackintervalId = setInterval(() => {
+            if (!this.callbackisDestroyed) {
+                this.callbackcount();
+            }
+        }, 5000);
+    },
+
+    stopPolling() {
+        this.callbackisDestroyed = true;
+        if (this.callbackintervalId) {
+            clearInterval(this.callbackintervalId);
+            this.callbackintervalId = null;
+        }
     },
 
     async callbacklisttoken() {
@@ -877,6 +1143,7 @@ export default {
           backDept: this.user?.extNo?.locSaupjang,
         });
         this.callbacklistitems = response.data;
+        console.log("콜백 리스트 조회 성공:", this.callbacklistitems);
       } catch (error) {
         console.error("콜백 리스트 조회 실패:", error);
       }
@@ -947,10 +1214,10 @@ export default {
       } catch (error) {
         console.error("콜백 고객명 조회 실패:", error);
       }
-      const rows = this.$refs.callbackTable.$el.querySelectorAll('tbody tr');
-      rows.forEach(row => row.classList.remove('today-table-active'));
+      const rows = this.$refs.callbackTable.$el.querySelectorAll("tbody tr");
+      rows.forEach((row) => row.classList.remove("today-table-active"));
       if (rows[index]) {
-        rows[index].classList.add('today-table-active');
+        rows[index].classList.add("today-table-active");
       }
     },
 
@@ -1058,6 +1325,10 @@ export default {
         alert("비밀번호는 최소 4자 이상이어야 합니다.");
         return;
       }
+      if (this.newPassword.length > 12) {
+        alert("비밀번호는 최대 12자 이하이어야 합니다.");
+        return;
+      }
       // newPassword와 currentPassword가 반드시 같아야 한다면 아래 조건 사용
       if (this.newPassword !== this.confirmPassword) {
         alert("새 비밀번호는 확인 비밀번호와 같아야 합니다.");
@@ -1088,6 +1359,7 @@ export default {
 
     async insertUser() {
       // 최소 길이 4자 검사
+
       if (this.newUserPassword.length < 4) {
         alert("비밀번호는 최소 4자 이상이어야 합니다.");
         return;
@@ -1125,12 +1397,313 @@ export default {
         const response = await axios.post("./find-password", {
           findUserId: this.findUserId,
           findUserName: this.findUserNo,
+          resetpw: this.aesEncrypt(this.findUserNo, "himoadmin1234567"),
         });
-        this.getUserPw = this.aesDecrypt(response.data,"himoadmin1234567");
+        alert(response.data);
       } catch (e) {
         alert("해당 아이디와 이름으로 등록된 사용자가 없습니다.");
         return;
       }
+    },
+
+    onFileChange(e) {
+      const file = e.target.files && e.target.files[0];
+      this.selectedFile = file || null;
+    },
+
+    async uploadExcel() {
+      if (this.MessageLabel === "") {
+        alert("메시지 종류을 선택해주세요.");
+        return;
+      }
+      if (!this.selectedFile) return;
+      this.uploading = true;
+      try {
+        const formData = new FormData();
+        formData.append("file", this.selectedFile);
+        formData.append("messageContent", this.messageContent);
+
+        const response = await axios.post("./excelupload", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        console.log(response.data.invalid(0));
+        if (response.data.invalid == null) {
+          alert("유효하지 않은 파일입니다. 올바른 엑셀 파일을 업로드해주세요.");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("파일 업로드 중 오류가 발생했습니다. 다시 시도해주세요.");
+      } finally {
+        this.uploading = false;
+        alert("파일 업로드가 완료되었습니다.");
+        this.resetFileInput();
+      }
+    },
+    resetFileInput() {
+      const input = this.$refs.excelInput;
+      if (input) input.value = "";
+      this.selectedFile = null;
+    },
+
+    onLabelChange() {
+      this.messageContent = messageTemplates[this.MessageLabel] || "";
+    },
+
+    async firstlogincheck() {
+      const response = await axios.post("./firstloginchk", {
+        userId: this.user?.user?.crmid,
+      });
+
+      this.firstloginchk = response.data;
+
+      if (this.firstloginchk === "N") {
+        this.firstChkModal = true;
+        await axios.post("./firstlogincheck", {
+          userId: this.user?.user?.crmid,
+        });
+      }
+      if (this.firstChkModal === "Y") {
+        this.firstChkModal = false;
+      }
+    },
+
+    checkCapsLock(event, field) {
+      if (event.getModifierState && event.getModifierState("CapsLock")) {
+        this.capsLockOn[field] = true;
+      } else {
+        this.capsLockOn[field] = false;
+      }
+    },
+
+    hideCapsLockWarning(field) {
+      this.capsLockOn[field] = false;
+    },
+
+    selectInputText(event) {
+      event.target.select();
+    },
+
+    selectDivText(event) {
+      // div 내용 전체 선택
+      const range = document.createRange();
+      range.selectNodeContents(event.target);
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+    },
+
+    selectPhoneNumber(event) {
+      // 텍스트를 완전히 선택 (파란색 하이라이트)
+      const range = document.createRange();
+      range.selectNodeContents(event.target);
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+    },
+
+    async requestNotificationPermission() {
+      if (Notification.permission === "denied") {
+        return false;
+      }
+
+      if (Notification.permission === "default") {
+        console.log("알림 권한을 다시 요청합니다.");
+        Notification.requestPermission();
+        return false;
+      }
+
+      return Notification.permission === "granted";
+    },
+
+    handleUserClick() {
+      Notification.requestPermission();
+    },
+
+    formatCallTime(callTime) {
+      if (!callTime || callTime.length < 14) return callTime;
+
+      const datePart = callTime.slice(0, 10); // "2025-08-29"
+      const timePart = callTime.slice(10); // "143634"
+
+      const hour = timePart.slice(0, 2); // "14"
+      const minute = timePart.slice(2, 4); // "36"
+      const second = timePart.slice(4, 6); // "34"
+
+      return `${datePart}  ${hour}시${minute}분${second}초`;
+    },
+
+    async showNotification(callerNumber, callTime) {
+      if ("Notification" in window && Notification.permission === "granted") {
+        await this.NotifiCrmInfo(callerNumber, callTime);
+        console.log(this.crminfo);
+
+        if (this.crminfo.callCustname) {
+          const notification = new Notification(
+            `고객명 :${this.crminfo.callCustname}`,
+            {
+              body: `전화지점 :${
+                this.crminfo.indeptName
+              }\n발신번호: ${this.formatPhoneNumber(
+                callerNumber
+              )}\n시간: ${this.formatCallTime(callTime)}\n최종예약내역: ${
+                this.crminfo.lastRsrvName || "없음"
+              }`,
+              icon: "/favicon.ico", // 아이콘 경로 설정
+              badge: "/path/to/badge-icon.png",
+              tag: "incoming-call", // 중복 알림 방지
+              requireInteraction: true,
+              silent: false,
+            }
+          );
+
+          setTimeout(() => {
+            notification.close();
+          }, 8000);
+
+          // 알림 클릭 시 창 포커스
+          notification.onclick = () => {
+            window.focus();
+            this.showCrmInfomodal(callerNumber, callTime);
+            notification.close();
+          };
+
+          return notification;
+        } else {
+          const notification = new Notification(
+            `전화지점 :${this.crminfo.indeptName}`,
+            {
+              body: `발신번호: ${this.formatPhoneNumber(
+                callerNumber
+              )}\n시간: ${this.formatCallTime(callTime)}`,
+              tag: "incoming-call", // 중복 알림 방지
+              requireInteraction: true,
+              silent: false,
+            }
+          );
+
+          setTimeout(() => {
+            notification.close();
+          }, 8000);
+
+          // 알림 클릭 시 창 포커스
+          notification.onclick = () => {
+            window.focus();
+            this.showCrmInfomodal(callerNumber, callTime);
+            notification.close();
+          };
+
+          return notification;
+        }
+      }
+    },
+
+    handleBrowserClose(event) {
+      // 새로고침인지 확인
+      const isRefreshing = sessionStorage.getItem("isRefreshing");
+      if (isRefreshing === "true") {
+        sessionStorage.removeItem("isRefreshing");
+        return;
+      }
+      this.sendToServer("O");
+      this.closeAllPopups();
+      this.stopPolling();
+    },
+
+    checkSingleTab() {
+      // 현재 탭의 고유 ID 생성
+      this.currentTabId =
+        "tab_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
+
+      // 기존 활성 탭 ID 확인
+      const activeTabId = localStorage.getItem("activeTabId");
+      const activeTabTime = localStorage.getItem("activeTabTime");
+      const currentTime = Date.now();
+
+      // 기존 활성 탭이 있고, 너무 오래되지 않았으면 (10초 이내)
+      if (
+        activeTabId &&
+        activeTabTime &&
+        currentTime - parseInt(activeTabTime) < 30000
+      ) {
+        alert(
+          "같은 CRM 시스템이 이미 실행 중입니다.\n다른 탭을 닫거나 이 탭을 닫아주세요."
+        );
+        window.close();
+        // 현재 탭 비활성화
+        this.disableCurrentTab();
+        return false;
+      }
+
+      // 현재 탭을 활성 탭으로 설정
+      localStorage.setItem("activeTabId", this.currentTabId);
+      localStorage.setItem("activeTabTime", currentTime.toString());
+
+      // // 다른 탭의 변화 감지
+      // window.addEventListener("storage", this.handleTabStorageChange);
+
+      // 주기적으로 활성 상태 업데이트 (하트비트)
+      this.tabHeartbeat = setInterval(() => {
+        if (!this.isTabDisabled) {
+          localStorage.setItem("activeTabId", this.currentTabId);
+          localStorage.setItem("activeTabTime", Date.now().toString());
+        }
+      }, 3000); // 3초마다
+
+      // 페이지 언로드 시 정리
+      window.addEventListener("beforeunload", this.cleanupTab);
+
+      return true;
+    },
+
+    // 다른 탭에서 localStorage 변경 감지
+    // handleTabStorageChange(e) {
+    //   if (e.key === "activeTabId" && e.newValue !== this.currentTabId) {
+    //     alert("다른 탭에서 CRM 시스템이 시작되어 현재 탭을 비활성화합니다.");
+    //     this.disableCurrentTab();
+    //   }
+    // },
+
+    // 현재 탭 비활성화
+    disableCurrentTab() {
+      this.isTabDisabled = true;
+
+      // 하트비트 중단
+      if (this.tabHeartbeat) {
+        clearInterval(this.tabHeartbeat);
+      }
+
+      // 화면 오버레이 표시
+      // this.showTabDisabledOverlay();
+
+      // IPCC 관련 정리
+      this.closeAllPopups();
+    },
+
+    // 탭 비활성화 오버레이 표시
+    showTabDisabledOverlay() {
+      // 키보드 이벤트 차단
+      document.addEventListener(
+        "keydown",
+        (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        },
+        true
+      );
+    },
+    // 탭 정리
+    cleanupTab() {
+      if (localStorage.getItem("activeTabId") === this.currentTabId) {
+        localStorage.removeItem("activeTabId");
+        localStorage.removeItem("activeTabTime");
+      }
+
+      if (this.tabHeartbeat) {
+        clearInterval(this.tabHeartbeat);
+      }
+
+      window.removeEventListener("storage", this.handleTabStorageChange);
+      window.removeEventListener("beforeunload", this.cleanupTab);
     },
   },
 };

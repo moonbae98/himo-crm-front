@@ -262,7 +262,7 @@ function parseLogout(kind) {
 }
 function parseBye(kind, uid, name) {
   alert("[socket_frame.js][parseBye][" + kind + "]" + name + "(" + uid + ")");
-  parent.logoutfromserver();
+  // parent.logoutfromserver();
 }
 function parseStt(data) {
   parent.parseSttData(data);

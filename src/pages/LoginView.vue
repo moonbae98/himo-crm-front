@@ -28,16 +28,28 @@
                 label="비밀번호"
                 label-for="input-password"
               >
-                <b-form-input
-                  id="input-password"
-                  class="gray-form-input"
-                  v-model="password"
-                  type="password"
-                  placeholder="비밀번호를 입력하세요"
-                  autocomplete="current-password"
-                  required
-                  size="lg"
-                ></b-form-input>
+                <div class="password-input-wrapper">
+                  <b-form-input
+                    id="input-password"
+                    class="gray-form-input"
+                    v-model="password"
+                    type="password"
+                    placeholder="비밀번호를 입력하세요"
+                    autocomplete="current-password"
+                    required
+                    size="lg"
+                    @keydown="checkCapsLock"
+                    @keyup="checkCapsLock"
+                    @focus="checkCapsLock"
+                    @blur="hideCapsLockWarning"
+                  ></b-form-input>
+                  
+                  <!-- Caps Lock 경고 메시지 -->
+                  <div v-if="capsLockOn" class="caps-lock-warning">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    Caps Lock이 켜져 있습니다
+                  </div>
+                </div>
               </b-form-group>
             </div>
             <div class="col-5">
@@ -74,9 +86,17 @@
           </div>
 
           <div class="d-grid pb-5">
-            <b-button type="submit" variant="primary" size="lg"
+            <b-button type="submit" variant="primary" size="lg" class="mb-3"
               >로그인</b-button
             >
+            <a
+              href="/himo-crm/resources/vue/downloads/allow_popups.bat"
+              download
+              class="btn btn-outline-secondary btn-sm"
+              title="설치파일 다운로드"
+            >
+              팝업 자동 설정 파일 다운로드
+            </a>
           </div>
         </b-form>
 
@@ -118,6 +138,7 @@ export default {
       extNo: "",
       error: "",
       autoLoginCheck: 0, // TODO: 자동로그인 기능 구현 필요
+      capsLockOn: false, // Caps Lock 상태
     };
   },
   mounted() {
@@ -128,13 +149,12 @@ export default {
         const autologin = JSON.parse(autologinStr);
         if (autologin.autoLoginCheck == 1 || autologin.autoLoginCheck === "1") {
           this.crmid = autologin.autoid;
-          this.password = autologin.autopw;
           this.extNo = autologin.autoextno;
+          this.password = autologin.autopw;
           this.autoLoginCheck = 1;
-          // 자동로그인 실행
+
           this.onSubmit();
         } else {
-          // 체크 아니면 autologin정보 삭제
           localStorage.removeItem("autologin");
           this.autoLoginCheck = 0;
         }
@@ -147,6 +167,20 @@ export default {
   },
 
   methods: {
+    // Caps Lock 상태 확인
+    checkCapsLock(event) {
+      if (event.getModifierState && event.getModifierState('CapsLock')) {
+        this.capsLockOn = true;
+      } else {
+        this.capsLockOn = false;
+      }
+    },
+    
+    // 비밀번호 필드에서 포커스 아웃될 때 경고 숨김
+    hideCapsLockWarning() {
+      this.capsLockOn = false;
+    },
+
     async onSubmit() {
       try {
         const crmid = this.crmid;
@@ -158,25 +192,37 @@ export default {
           extNo,
         });
 
+        //String  gs_ipphone_ip   = '1.214.143.90'
+        //String  gs_ipphone_port = '8083'
+        //http://211.234.122.115:8888/
+        //https://122.49.74.231/:8888/
 
         localStorage.setItem(
           "loginInfo",
           JSON.stringify({
-             nodejs_connector_url: "http://122.49.74.230:8087",
-             userid: "user" + this.extNo, // 사용자 ID
-             exten: this.extNo,
-             company_id: "himo", // 회사 ID
-             passwd: "user!2322",
-             first_status: "0",
-             from_ui: "API",
+            nodejs_connector_url: "http://211.234.122.115:8087",
+            userid: "user" + this.extNo, // 사용자 ID
+            exten: this.extNo,
+            company_id: "himo", // 회사 ID
+            passwd: "user!2322",
+            first_status: "0",
+            from_ui: "API",
 
-            //nodejs_connector_url: "http://122.49.74.230:8087",
-            //userid: "test9260", // 사용자 ID
-            //exten: "9260",
-            //company_id: "himo", // 회사 ID
-            //passwd: "user!2322",
-            //first_status: "0",
-            //from_ui: "API",
+            // nodejs_connector_url: "https://122.49.74.231:8087",
+            // userid: "test" + this.extNo, // 사용자 ID
+            // exten: this.extNo,
+            // company_id: "himo", // 회사 ID
+            // passwd: "user!2322",
+            // first_status: "0",
+            // from_ui: "API",
+
+            // nodejs_connector_url: "http://122.49.74.230:8087",
+            // userid: "test9260", // 사용자 ID
+            // exten: "9260",
+            // company_id: "himo", // 회사 ID
+            // passwd: "user!2322",
+            // first_status: "0",
+            // from_ui: "API",
           })
         );
 
@@ -185,7 +231,7 @@ export default {
           JSON.stringify({
             autoLoginCheck: this.autoLoginCheck,
             autoid: crmid,
-            autopw: password,
+            autopw: this.aesDecrypt(password, "himoadmin1234567"),
             autoextno: extNo,
           })
         );
@@ -205,8 +251,6 @@ export default {
           alert("알 수 없는 오류가 발생했습니다.");
           this.error = "로그인에 실패했습니다. 다시 시도해 주세요.";
         }
-        console.log(error);
-        this.$router.push({ name: "Home" });
       }
     },
 
@@ -275,5 +319,54 @@ export default {
 .login-form .form-label {
   font-size: 17px;
   font-weight: 700;
+}
+
+/* Caps Lock 경고 스타일 */
+.password-input-wrapper {
+  position: relative;
+}
+
+.caps-lock-warning {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  padding: 8px 12px;
+  font-size: 12px;
+  color: #856404;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.caps-lock-warning::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: 15px;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 5px solid #ffeaa7;
+}
+
+.caps-lock-warning i {
+  color: #f39c12;
+  font-size: 14px;
+}
+
+/* 반응형 대응 */
+@media (max-width: 576px) {
+  .caps-lock-warning {
+    font-size: 11px;
+    padding: 6px 10px;
+  }
 }
 </style>

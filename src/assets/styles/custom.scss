@@ -62,7 +62,8 @@ body {
 
 /* Main Container Styling */
 .main-container {
-  padding: 19px;
+  padding: 8px;
+  height:860px;
 }
 
 .main-grid-container {
@@ -82,12 +83,13 @@ body {
   &:nth-child(2) {
     // grid-template-columns: calc(1068 / 1882 * 100%) 1fr;
     grid-template-columns: 1fr max(600px, calc(802 / 1882 * 100%));
+    grid-template-rows: 90%;
   }
 }
 
 /* 상담자 정보 및 기능 */
 .user-info-container {
-  max-width: 372px;
+  max-width: 400px;
   margin: 0 auto;
 
   .title {
@@ -99,8 +101,8 @@ body {
     display: grid;
     align-items: center;
     gap: 10px;
-    grid-template-columns: 110px 1fr;
-    font-size: 16px;
+    grid-template-columns: 1fr 1fr;
+    font-size: 15px;
     font-weight: 600;
 
     .info-label {
@@ -110,7 +112,7 @@ body {
     .info-text {
       display: flex;
       align-items: center;
-      justify-content: flex-end;
+      justify-content: space-between;
       height: 36px;
       padding: 12px;
       border-radius: 3px;
@@ -130,7 +132,7 @@ body {
     align-items: center;
     justify-content: center;
     gap: 10px;
-    min-height: 64px;
+    min-height: 45px;
     border-radius: 5px;
     border: 1px solid #eaedef;
     background-color: #fff;
@@ -159,13 +161,15 @@ body {
     border-radius: 5px;
     background-color: #f9f9f9;
     color: var(--theme-black-primary-color);
+    //color: greenyellow;
 	  font-family: 'SUIT Variable';
     font-weight: 800;
     font-size: 11px;
     border: 1px solid transparent;
 
     &.active {
-      border: 1px solid var(--theme-black-primary-color);
+      border: 4px solid var(--theme-black-primary-color);
+      //border: 1px solid var(greenyellow);
     }
 
     i {
@@ -183,7 +187,8 @@ body {
 }
 
 .calls-table-container {
-  height: calc(370px + 1rem);
+  min-height: 325px;
+  max-height: max-content;
 }
 
 .calls-table {
@@ -198,47 +203,51 @@ body {
 .calls-table td:nth-child(1) {
   width: 120px !important;
 }
-
 .calls-table th:nth-child(2),
 .calls-table td:nth-child(2) {
+  width: 120px !important;
+}
+
+.calls-table th:nth-child(3),
+.calls-table td:nth-child(3) {
   width: 200px !important;
 }
-.calls-table th:nth-child(5) {
+.calls-table th:nth-child(6) {
   width: 180px !important;
 }
 
-.calls-table td:nth-child(5) {
+.calls-table td:nth-child(6) {
   width: 180px !important;
   text-align: left !important;
 }
 
-.calls-table th:nth-child(3),
-.calls-table td:nth-child(3),
 .calls-table th:nth-child(4),
-.calls-table td:nth-child(4) {
+.calls-table td:nth-child(4),
+.calls-table th:nth-child(5),
+.calls-table td:nth-child(5) {
   width: 180px !important;
-}
-.calls-table th:nth-child(6),
-.calls-table td:nth-child(6){
-  width: 80px !important;
 }
 .calls-table th:nth-child(7),
 .calls-table td:nth-child(7){
-  width: 160px !important;
+  width: 80px !important;
 }
 .calls-table th:nth-child(8),
 .calls-table td:nth-child(8){
-  width: 180px !important;
+  width: 160px !important;
 }
 .calls-table th:nth-child(9),
 .calls-table td:nth-child(9){
+  width: 180px !important;
+}
+.calls-table th:nth-child(10),
+.calls-table td:nth-child(10){
   width: 160px !important;
 }
 
-.calls-table th:nth-child(10),
-.calls-table td:nth-child(10),
 .calls-table th:nth-child(11),
-.calls-table td:nth-child(11) {
+.calls-table td:nth-child(11),
+.calls-table th:nth-child(12),
+.calls-table td:nth-child(12) {
   width: 300px !important;
 }
 
@@ -263,32 +272,39 @@ body {
   height: calc(430px + 1rem);
 }
 
-.today-calls-table th:nth-child(1),
-.today-calls-table td:nth-child(1),
+.today-calls-table th:nth-child(2),
+.today-calls-table td:nth-child(2){
+  width: 130px !important;
+ }
 .today-calls-table th:nth-child(4),
 .today-calls-table td:nth-child(4){
-  width: 210px !important;
+  width: 150px !important;
  }
 
 
 
-.today-calls-table td:nth-child(4){
+.today-calls-table td:nth-child(3){
   text-align: left !important;
  }
  
 
-.today-calls-table th:nth-child(2),
-.today-calls-table td:nth-child(2),
+.today-calls-table th:nth-child(1),
+.today-calls-table td:nth-child(1),
 .today-calls-table th:nth-child(3),
 .today-calls-table td:nth-child(3){
-  width: 170px !important;
+  width: 130px !important;
  }
 
 .today-calls-table th:nth-child(5),
-.today-calls-table td:nth-child(5),
+.today-calls-table td:nth-child(5){
+ width: 170px !important;
+}
+
 .today-calls-table th:nth-child(6),
-.today-calls-table td:nth-child(6){
-  width: 80px !important;
+.today-calls-table td:nth-child(6),
+.today-calls-table th:nth-child(7),
+.today-calls-table td:nth-child(7){
+  width: 70px !important;
  }
 
  .consult-table {
@@ -422,7 +438,7 @@ body {
   display: grid;
   justify-content: center;
   grid-template-columns: 340px 340px;
-  gap: 12px 0;
+  gap: 5px 0;
 
   .b-form-group {
     &.full-width {
@@ -581,6 +597,7 @@ body {
     .info-label {
       margin-bottom: 4px;
       font-size: 16px;
+
     }
 
     .info-text {
@@ -772,6 +789,7 @@ body {
 .form-control {
   border-radius: 3px;
   border-color: #dee2e5;
+  padding: .15rem .75rem;
   
   &:read-only {
     background-color: #f9f9f9;
@@ -779,7 +797,7 @@ body {
 
   &.form-control-lg {
     min-height: 52px;
-    font-size: 18px;
+    font-size: 15px;
   }
 
   &.gray-form-input {
@@ -807,7 +825,7 @@ body {
   padding: 0;
 
   &.form-control-lg {
-    font-size: 17px;
+    font-size: 15px;
 
     .form-check-label {
       &::before {
@@ -885,8 +903,8 @@ body {
   overflow: hidden;
 
   &.card-highlight {
-    width: 80%;
-    height: 90%;
+    width: 100%;
+    height: 100%;
     margin: auto;
     outline: 1px solid #000;
     box-shadow: none;
@@ -943,8 +961,8 @@ body {
 
   th {
     padding: 0 1rem;
-    height: 34px;
-    font-size: 18px;
+    height: 26px;
+    font-size: 15px;
     vertical-align: middle;
     text-align: center;
     font-weight: 300;
@@ -956,10 +974,10 @@ body {
   td {
     padding: 0 1rem;
     text-align: center;
-    height: 30px;
+    height: 26px;
     border:rgb(188, 187, 187) 1px solid;
     vertical-align: middle;
-    font-size: 16x;
+    font-size: 15px;
   }
 }
 
@@ -1165,3 +1183,50 @@ body {
 #pswdcursor{
   cursor: pointer;
  }
+
+.logout-modal .modal-dialog{
+  margin: 1.75rem auto;
+  width: 500px;
+}
+.logout-confirm-content{
+  text-align: center;
+}
+
+
+
+.crm-password-change .caps-lock-warning {
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 0;
+  right: 0;
+  background-color: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  padding: 6px 10px;
+  font-size: 11px;
+  color: #856404;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.phone-number {
+  cursor: pointer;
+  user-select: text;
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
+.phone-number:hover {
+  background-color: #f8f9fa;
+}
+
+.phone-number::selection {
+  background-color: #007bff;
+  color: white;
+}
+
+

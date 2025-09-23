@@ -7,13 +7,30 @@
     <div class="right-box">
       <!-- TODO: ThemeSwitch 기능 구현 -->
       <ThemeSwitch />
+      <!-- <b-button class="button-logout" @click="showCrmInfo('01057893917','')">
+        테스트버튼
+      </b-button> -->
+      <b-button class="button-logout" @click="closeAllPopups">
+        팝업전체닫기
+      </b-button>
+      <b-button class="button-logout" @click="passwordChangeModal = true">
+        비밀번호변경
+      </b-button>
       <b-button
         v-if="user?.user.bizDiv === '1015'"
         class="button-logout"
         @click="adminbuttonModal = true"
         >관리자</b-button
       >
-      <b-button class="button-logout" @click="logout">종료</b-button>
+      <b-button
+        v-if="user?.user.bizDiv === '1015' || user?.user.bizDiv === '1003'"
+        class="button-logout"
+        @click="MessageChkModal = true"
+        >문자내역입력</b-button
+      >
+      <b-button class="button-logout" @click="logoutModal = true"
+        >로그아웃</b-button
+      >
     </div>
   </header>
 
@@ -27,14 +44,11 @@
             <h2 class="title pt-3 mb-4">{{ user?.extNo.deptNm }}</h2>
 
             <div class="info-grid">
-              <span class="info-label">전화번호</span>
-              <span class="info-text">{{ user?.extNo.extNo }}</span>
-              <span class="info-label">상담자</span>
-              <span
-                id="pswdcursor"
-                class="info-text"
-                @dblclick="passwordChangeModal = true"
-                >{{ user?.user.name }}</span
+              <span class="info-text"
+                ><span>상담자 :</span>{{ user?.user.name }}</span
+              >
+              <span class="info-text"
+                ><span>전화번호 :</span>{{ user?.extNo.extNo }}</span
               >
             </div>
 
@@ -96,6 +110,30 @@
             <div class="d-grid mt-4">
               <b-button @click="hangdown" variant="primary">전화종료</b-button>
             </div>
+
+            <div class="contact-menus my-3" v-if="
+                user?.extNo?.locSaupjang === '1000' ||
+                user?.extNo?.locSaupjang === '1003'
+              ">
+              <b-button
+                variant="outline-primary"
+                class="w-50"
+                :class="{ active: activeDangzic === 'I' }"
+                @click="dolbtn"
+              >
+                <i class="icon-user"></i>
+                당직자로그인
+              </b-button>
+              <b-button
+                variant="outline-primary"
+                class="w-50"
+                :class="{ active: activeDangzic === 'O' }"
+                @click="dolobtn"
+              >
+                <i class="icon-logout"></i>
+                당직자로그아웃
+              </b-button>
+            </div>
           </div>
         </b-card>
 
@@ -113,7 +151,25 @@
               ref="callTable"
               striped
               hover
-            > 
+            >
+              <template #cell(callInsphone)="data">
+                <span
+                  class="phone-number"
+                  @click.stop="selectPhoneNumber($event)"
+                  :title="data.value"
+                >
+                  {{ data.value }}
+                </span>
+              </template>
+              <template #cell(callPhoneno)="data">
+                <span
+                  class="phone-number"
+                  @click.stop="selectPhoneNumber($event)"
+                  :title="data.value"
+                >
+                  {{ data.value }}
+                </span>
+              </template>
               <template #cell(deptName)="data">
                 <span class="ellipsis-cell" :title="data.value">{{
                   data.value
@@ -167,6 +223,25 @@
               ref="calltodayTable"
               :per-page="todayperPage"
             >
+              <template #cell(callPhoneno)="data">
+                <span
+                  class="phone-number"
+                  @click.stop="selectPhoneNumber($event)"
+                  :title="data.value"
+                >
+                  {{ data.value }}
+                </span>
+              </template>
+
+              <template #cell(callCustcode)="data">
+                <span
+                  class="phone-number"
+                  @click.stop="selectPhoneNumber($event)"
+                  :title="data.value"
+                >
+                  {{ data.value }}
+                </span>
+              </template>
             </b-table>
           </div>
         </b-card>
@@ -223,6 +298,8 @@
                   type="text"
                   v-model="customerInfo.callInsphone"
                   readonly
+                  class="phone-input"
+                  @click="selectInputText($event)"
                 />
               </b-form-group>
               <b-form-group label="성별">
@@ -237,6 +314,8 @@
                   type="text"
                   v-model="customerInfo.callPhoneno"
                   readonly
+                  class="phone-input"
+                  @click="selectInputText($event)"
                 />
               </b-form-group>
               <b-form-group label="핸드폰번호">
@@ -244,6 +323,8 @@
                   type="text"
                   v-model="customerInfo.callUsephone"
                   readonly
+                  class="phone-input"
+                  @click="selectInputText($event)"
                 />
               </b-form-group>
               <b-form-group label="고객코드">
@@ -251,6 +332,8 @@
                   type="text"
                   v-model="customerInfo.callCustcode"
                   readonly
+                  class="phone-input"
+                  @click="selectInputText($event)"
                 />
               </b-form-group>
               <b-form-group label="통화지점">
@@ -261,12 +344,13 @@
                 />
               </b-form-group>
 
-              <b-form-group label="최종AS내역" class="full-width">
+              <b-form-group label="최종A/S내역" class="full-width">
                 <b-form-textarea
                   v-model="customerInfo.asRemark"
                   rows="2"
                   no-resize
                   :title="customerInfo.asRemark"
+                  readonly
                 />
               </b-form-group>
 
@@ -284,37 +368,40 @@
                   readonly
                 />
               </b-form-group>
-              <b-form-group label="최종as일자">
+              <b-form-group label="최종A/S일자">
                 <b-form-input
                   type="text"
                   v-model="customerInfo.asDt"
                   readonly
                 />
               </b-form-group>
-              <b-form-group label="최종a/s명">
+              <b-form-group label="최종A/S명">
                 <b-form-input
                   type="text"
                   v-model="customerInfo.asCodeName"
                   readonly
                 />
               </b-form-group>
-              <b-form-group
+              <!-- <b-form-group
                 label="당직자 내선번호"
                 v-if="user?.extNo?.locSaupjang === '1000'"
               >
                 <b-form-input type="text" v-model="dangzicextno" />
-              </b-form-group>
+              </b-form-group> -->
             </div>
 
             <!-- 당직자 로그 인/아웃 버튼 -->
-            <div
+            <!-- <div
               class="logged-in-out-buttons-wrap my-4"
-              v-if="user?.extNo?.locSaupjang === '1000'"
+              v-if="
+                user?.extNo?.locSaupjang === '1000' ||
+                user?.extNo?.locSaupjang === '1003'
+              "
             >
               <div class="d-grid button-item">
                 <b-button
-                  variant="primary"
-                  :class="{ active: activeDangzic === 'A' }"
+                  variant="outline-primary"
+                  :class="{ active: activeDangzic === 'I' }"
                   @click="dolbtn"
                 >
                   <i class="icon-user"></i>
@@ -324,14 +411,14 @@
               <div class="d-grid button-item">
                 <b-button
                   variant="outline-primary"
-                  :class="{ active: activeDangzic === 'N' }"
+                  :class="{ active: activeDangzic === 'O' }"
                   @click="dolobtn"
                 >
                   <i class="icon-logout"></i>
                   당직자로그아웃
                 </b-button>
               </div>
-            </div>
+            </div> -->
           </div>
         </b-card>
       </div>
@@ -374,6 +461,26 @@
         </b-col>
       </b-row>
     </b-container>
+
+    <b-modal
+      v-model:show="logoutModal"
+      @hide="logoutModalHide"
+      title="로그아웃 확인"
+      hide-header-close
+      hide-backdrop
+      class="logout-modal"
+    >
+      <div class="logout-confirm-content">
+        <h4>로그아웃 하시겠습니까 ?</h4>
+        <h5>로그아웃 시 자동로그인이 해제 됩니다.</h5>
+      </div>
+      <template #footer>
+        <b-button variant="primary" @click="logout">로그아웃</b-button
+        ><b-button variant="primary" @click="logoutModal = false"
+          >취소</b-button
+        >
+      </template>
+    </b-modal>
 
     <!-- 콜백리스트 모달 -->
     <b-modal
@@ -421,7 +528,26 @@
               @row-clicked="callbackset"
               ref="callbackTable"
               small
-            ></b-table>
+            >
+              <template #cell(backPhoneno)="data">
+                <span
+                  class="phone-number"
+                  @click.stop="selectPhoneNumber($event)"
+                  :title="data.value"
+                >
+                  {{ data.value }}
+                </span>
+              </template>
+              <template #cell(backCallNo)="data">
+                <span
+                  class="phone-number"
+                  @click.stop="selectPhoneNumber($event)"
+                  :title="data.value"
+                >
+                  {{ data.value }}
+                </span>
+              </template>
+            </b-table>
           </b-col>
           <b-col cols="4">
             <aside class="aside-section call-history-container">
@@ -452,6 +578,7 @@
                     type="text"
                     readonly
                     size="sm"
+                    @click="selectInputText($event)"
                   />
                 </b-form-group>
               </div>
@@ -466,7 +593,12 @@
                 </b-form-group>
 
                 <b-form-group label="요청 전화번호">
-                  <b-form-input v-model="callbacknumber" type="text" readonly />
+                  <b-form-input
+                    v-model="callbacknumber"
+                    type="text"
+                    readonly
+                    @click="selectInputText($event)"
+                  />
                 </b-form-group>
               </div>
 
@@ -580,6 +712,26 @@
               hover
               small
             >
+              <template #cell(CALL_INSPHONE)="data">
+                <span
+                  class="phone-number"
+                  @click.stop="selectPhoneNumber($event)"
+                  :title="data.value"
+                >
+                  {{ data.value }}
+                </span>
+              </template>
+
+              <template #cell(CALL_PHONENO)="data">
+                <span
+                  class="phone-number"
+                  @click.stop="selectPhoneNumber($event)"
+                  :title="data.value"
+                >
+                  {{ data.value }}
+                </span>
+              </template>
+
               <template #cell(CALL_REMARK)="data">
                 <span class="ellipsis-cell" :title="data.value">{{
                   data.value
@@ -643,7 +795,7 @@
                     no-resize
                   />
                 </b-form-group>
-                <b-form-group label="최종 as내역" class="size-small">
+                <b-form-group label="최종 A/S내역" class="size-small">
                   <b-form-textarea
                     v-model="consultInfo.asRemark"
                     type="text"
@@ -679,52 +831,137 @@
           class="crm-info-content"
           v-if="crminfo.callCustcode ? crminfo.callCustcode : false"
         >
-          <h5>고객정보 있을 경우</h5>
-
-          <div class="info-grid">
-            <div class="info-group full-width">
-              <div class="info-label">고객명</div>
-              <div class="info-text">
-                {{ crminfo.callCustname ? crminfo.callCustname : "" }}
+          <div v-if="crminfo.blackYN === 'Y'">
+            <h2 style="text-align: center">❗⭕악성 고객 주의⭕❗</h2>
+            <div class="info-grid">
+              <div class="info-group full-width">
+                <div class="info-label">고객명</div>
+                <div class="info-text">
+                  {{ crminfo.callCustname ? crminfo.callCustname : "" }}
+                </div>
               </div>
-            </div>
-            <div class="info-group full-width">
-              <div class="info-label">일자</div>
-              <div class="info-text">
-                {{ crminfo.callDate ? crminfo.callDate : "" }}
+              <div class="info-group full-width">
+                <div class="info-label">일자</div>
+                <div class="info-text">
+                  {{ crminfo.callDate ? crminfo.callDate : "" }}
+                </div>
               </div>
-            </div>
-            <div class="info-group">
-              <div class="info-label">고객코드</div>
-              <div class="info-text">
-                {{ crminfo.callCustcode ? crminfo.callCustcode : "" }}
+              <div class="info-group">
+                <div class="info-label">고객코드</div>
+                <div class="info-text" @click="selectDivText($event)">
+                  {{ crminfo.callCustcode ? crminfo.callCustcode : "" }}
+                </div>
               </div>
-            </div>
-            <div class="info-group">
-              <div class="info-label">통화지점</div>
-              <div class="info-text">
-                {{ crminfo.indeptName ? crminfo.indeptName : "" }}
+              <div class="info-group">
+                <div class="info-label">통화지점</div>
+                <div class="info-text">
+                  {{ crminfo.indeptName ? crminfo.indeptName : "" }}
+                </div>
               </div>
-            </div>
-            <div class="info-group">
-              <div class="info-label">전화번호</div>
-              <div class="info-text">
-                {{ crminfo.callPhoneno ? crminfo.callPhoneno : "" }}
+              <div class="info-group">
+                <div class="info-label">전화번호</div>
+                <div class="info-text" @click="selectDivText($event)">
+                  {{ crminfo.callPhoneno ? crminfo.callPhoneno : "" }}
+                </div>
               </div>
-            </div>
-            <div class="info-group">
-              <div class="info-label">최종예약내역</div>
-              <div class="info-text">
-                {{ crminfo.lastRsrvName ? crminfo.lastRsrvName : "" }}
+              <div class="info-group">
+                <div class="info-label">문자수신</div>
+                <div class="info-text">
+                  {{ crminfo.mastSmsYn ? crminfo.mastSmsYn : "" }}
+                </div>
+              </div>
+              <div class="info-group">
+                <div class="info-label">최종예약일자</div>
+                <div class="info-text" @click="selectDivText($event)">
+                  {{ crminfo.rsrvDt ? crminfo.rsrvDt : "" }}
+                </div>
+              </div>
+              <div class="info-group">
+                <div class="info-label">최종예약내역</div>
+                <div class="info-text">
+                  {{ crminfo.lastRsrvName ? crminfo.lastRsrvName : "" }}
+                </div>
+              </div>
+              <div class="info-group">
+                <div class="info-label">최종A/S일자</div>
+                <div class="info-text" @click="selectDivText($event)">
+                  {{ crminfo.callPhoneno ? crminfo.asDt : "" }}
+                </div>
+              </div>
+              <div class="info-group">
+                <div class="info-label">최종A/S내역</div>
+                <div class="info-text">
+                  {{ crminfo.asCodeName ? crminfo.asCodeName : "" }}
+                </div>
               </div>
             </div>
           </div>
-
-          <p class="help-text">CRM 웹페이지로 돌아가서 정보확인 바랍니다.</p>
+          <div v-else>
+            <div class="info-grid">
+              <div class="info-group full-width">
+                <div class="info-label">고객명</div>
+                <div class="info-text">
+                  {{ crminfo.callCustname ? crminfo.callCustname : "" }}
+                </div>
+              </div>
+              <div class="info-group full-width">
+                <div class="info-label">일자</div>
+                <div class="info-text">
+                  {{ crminfo.callDate ? crminfo.callDate : "" }}
+                </div>
+              </div>
+              <div class="info-group">
+                <div class="info-label">고객코드</div>
+                <div class="info-text" @click="selectDivText($event)">
+                  {{ crminfo.callCustcode ? crminfo.callCustcode : "" }}
+                </div>
+              </div>
+              <div class="info-group">
+                <div class="info-label">통화지점</div>
+                <div class="info-text">
+                  {{ crminfo.indeptName ? crminfo.indeptName : "" }}
+                </div>
+              </div>
+              <div class="info-group">
+                <div class="info-label">전화번호</div>
+                <div class="info-text" @click="selectDivText($event)">
+                  {{ crminfo.callPhoneno ? crminfo.callPhoneno : "" }}
+                </div>
+              </div>
+              <div class="info-group">
+                <div class="info-label">문자수신</div>
+                <div class="info-text">
+                  {{ crminfo.mastSmsYn ? crminfo.mastSmsYn : "" }}
+                </div>
+              </div>
+              <div class="info-group">
+                <div class="info-label">최종예약일자</div>
+                <div class="info-text" @click="selectDivText($event)">
+                  {{ crminfo.rsrvDt ? crminfo.rsrvDt : "" }}
+                </div>
+              </div>
+              <div class="info-group">
+                <div class="info-label">최종예약내역</div>
+                <div class="info-text">
+                  {{ crminfo.lastRsrvName ? crminfo.lastRsrvName : "" }}
+                </div>
+              </div>
+              <div class="info-group">
+                <div class="info-label">최종A/S일자</div>
+                <div class="info-text" @click="selectDivText($event)">
+                  {{ crminfo.callPhoneno ? crminfo.asDt : "" }}
+                </div>
+              </div>
+              <div class="info-group">
+                <div class="info-label">최종A/S내역</div>
+                <div class="info-text">
+                  {{ crminfo.asCodeName ? crminfo.asCodeName : "" }}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="crm-info-content" v-else>
-          <h5>고객정보 없을 경우</h5>
-
           <div class="info-grid">
             <div class="info-group full-width">
               <div class="info-label">고객명</div>
@@ -744,13 +981,11 @@
             </div>
             <div class="info-group">
               <div class="info-label">전화번호</div>
-              <div class="info-text">
+              <div class="info-text" @click="selectDivText($event)">
                 {{ crminfo.callPhoneno ? crminfo.callPhoneno : "" }}
               </div>
             </div>
           </div>
-
-          <p class="help-text">CRM 웹페이지로 돌아가서 정보확인 바랍니다.</p>
         </div>
       </div>
     </b-modal>
@@ -772,35 +1007,76 @@
           />
         </b-form-group>
         <b-form-group label="현재 비밀번호">
-          <b-form-input
-            v-model="currentPassword"
-            type="password"
-            placeholder="현재 비밀번호를 입력하세요"
-            autocomplete="current-password"
-            class="mb-3"
-            required
-          />
+          <div class="password-input-wrapper">
+            <b-form-input
+              v-model="currentPassword"
+              type="password"
+              placeholder="현재 비밀번호를 입력하세요"
+              autocomplete="current-password"
+              class="mb-3"
+              required
+              @keydown="checkCapsLock($event, 'current')"
+              @keyup="checkCapsLock($event, 'current')"
+              @focus="checkCapsLock($event, 'current')"
+              @blur="hideCapsLockWarning('current')"
+            />
+
+            <div v-if="capsLockOn.current" class="caps-lock-warning">
+              <i class="bi bi-exclamation-triangle-fill"></i>
+              Caps Lock이 켜져 있습니다
+            </div>
+          </div>
         </b-form-group>
+
         <b-form-group label="새 비밀번호">
-          <b-form-input
-            v-model="newPassword"
-            type="password"
-            placeholder="새 비밀번호를 입력하세요"
-            autocomplete="current-password"
-            class="mb-3"
-            required
-          />
+          <div class="password-input-wrapper">
+            <b-form-input
+              v-model="newPassword"
+              type="password"
+              placeholder="새 비밀번호를 입력하세요"
+              autocomplete="new-password"
+              class="mb-3"
+              required
+              @keydown="checkCapsLock($event, 'new')"
+              @keyup="checkCapsLock($event, 'new')"
+              @focus="checkCapsLock($event, 'new')"
+              @blur="hideCapsLockWarning('new')"
+            />
+
+            <div v-if="capsLockOn.new" class="caps-lock-warning">
+              <i class="bi bi-exclamation-triangle-fill"></i>
+              Caps Lock이 켜져 있습니다
+            </div>
+          </div>
         </b-form-group>
+
         <b-form-group label="새 비밀번호 확인">
-          <b-form-input
-            v-model="confirmPassword"
-            type="password"
-            placeholder="새 비밀번호를 다시 입력하세요"
-            autocomplete="current-password"
-            class="mb-3"
-            required
-          />
+          <div class="password-input-wrapper">
+            <b-form-input
+              v-model="confirmPassword"
+              type="password"
+              placeholder="새 비밀번호를 다시 입력하세요"
+              autocomplete="new-password"
+              class="mb-3"
+              required
+              @keydown="checkCapsLock($event, 'confirm')"
+              @keyup="checkCapsLock($event, 'confirm')"
+              @focus="checkCapsLock($event, 'confirm')"
+              @blur="hideCapsLockWarning('confirm')"
+            />
+
+            <div v-if="capsLockOn.confirm" class="caps-lock-warning">
+              <i class="bi bi-exclamation-triangle-fill"></i>
+              Caps Lock이 켜져 있습니다
+            </div>
+          </div>
         </b-form-group>
+
+        <hr />
+        <strong style="color: brown"
+          >※비밀번호는 4~12자리로 입력 바랍니다.</strong
+        >
+        <hr />
         <div class="d-grid">
           <b-button type="submit" variant="primary">변경</b-button>
         </div>
@@ -852,24 +1128,44 @@
               />
             </b-form-group>
             <b-form-group label="비밀번호">
-              <b-form-input
-                v-model="newUserPassword"
-                type="password"
-                placeholder="비밀번호를 입력하세요"
-                autocomplete="new-password"
-                class="mb-3"
-                required
-              />
+              <div class="password-input-wrapper">
+                <b-form-input
+                  v-model="newUserPassword"
+                  type="password"
+                  placeholder="비밀번호를 입력하세요"
+                  autocomplete="new-password"
+                  class="mb-3"
+                  required
+                  @keydown="checkCapsLock($event, 'input')"
+                  @keyup="checkCapsLock($event, 'input')"
+                  @focus="checkCapsLock($event, 'input')"
+                  @blur="hideCapsLockWarning('input')"
+                />
+                <div v-if="capsLockOn.input" class="caps-lock-warning">
+                  <i class="bi bi-exclamation-triangle-fill"></i>
+                  Caps Lock이 켜져 있습니다
+                </div>
+              </div>
             </b-form-group>
             <b-form-group label="비밀번호 확인">
-              <b-form-input
-                v-model="newUserConfirmPassword"
-                type="password"
-                placeholder="비밀번호를 다시 입력하세요"
-                autocomplete="new-password"
-                class="mb-3"
-                required
-              />
+              <div class="password-input-wrapper">
+                <b-form-input
+                  v-model="newUserConfirmPassword"
+                  type="password"
+                  placeholder="비밀번호를 다시 입력하세요"
+                  autocomplete="new-password"
+                  class="mb-3"
+                  required
+                  @keydown="checkCapsLock($event, 'input2')"
+                  @keyup="checkCapsLock($event, 'input2')"
+                  @focus="checkCapsLock($event, 'input2')"
+                  @blur="hideCapsLockWarning('input2')"
+                />
+                <div v-if="capsLockOn.input2" class="caps-lock-warning">
+                  <i class="bi bi-exclamation-triangle-fill"></i>
+                  Caps Lock이 켜져 있습니다
+                </div>
+              </div>
             </b-form-group>
             <div class="d-grid">
               <b-button type="submit" variant="primary">등록</b-button>
@@ -877,7 +1173,7 @@
           </b-form>
         </b-tab>
 
-        <b-tab title="비밀번호 찾기">
+        <b-tab title="비밀번호 초기화">
           <b-form @submit.prevent="findPassword">
             <b-form-group label="아이디">
               <b-form-input
@@ -899,19 +1195,10 @@
                 required
               />
             </b-form-group>
-
-            <b-form-group label="비밀번호">
-              <b-form-input
-                v-model="getUserPw"
-                type="text"
-                placeholder="비밀번호"
-                class="mb-3"
-                readonly
-              />
-            </b-form-group>
-
             <div class="d-grid">
-              <b-button type="submit" variant="primary">비밀번호 찾기</b-button>
+              <b-button type="submit" variant="primary"
+                >비밀번호 초기화</b-button
+              >
             </div>
           </b-form>
         </b-tab>
@@ -920,6 +1207,81 @@
         <b-button @click="adminbuttonModalHide" variant="primary"
           >취소</b-button
         >
+      </template>
+    </b-modal>
+
+    <b-modal
+      v-model:show="MessageChkModal"
+      @hide="MessageChkModalHide"
+      title="문자내역등록"
+      size="md"
+      class="crm-password-change"
+    >
+      <div class="p-2">
+        <textarea
+          v-model="messageContent"
+          rows="10"
+          class="form-control mb-3"
+          placeholder=""
+          readonly
+        />
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          "
+        >
+          <input
+            ref="excelInput"
+            type="file"
+            @change="onFileChange"
+            accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
+          />
+          <select v-model="MessageLabel" @change="onLabelChange" class="ml-2">
+            <option value="">문구 선택</option>
+            <option value="A">마일리지 소멸</option>
+          </select>
+        </div>
+      </div>
+
+      <template #footer>
+        <b-button @click="MessageChkModalHide" variant="secondary"
+          >취소</b-button
+        >
+        <b-button
+          :disabled="!selectedFile || uploading"
+          @click="uploadExcel"
+          variant="primary"
+        >
+          {{ uploading ? "업로드 중..." : "업로드" }}
+        </b-button>
+      </template>
+    </b-modal>
+
+    <b-modal
+      v-model:show="firstChkModal"
+      @hide="firstChkModalHide"
+      size="md"
+      no-close-on-backdrop
+      no-close-on-esc
+    >
+      <template #header>
+        <h5 class="modal-title">첫 로그인 설정</h5>
+      </template>
+      <div class="d-flex justify-content-center">
+        <a
+          href="/himo-crm/resources/vue/downloads/allow_popups.bat"
+          download
+          class="btn btn-outline-secondary btn-md"
+          title="설치파일 다운로드"
+          @click="firstChkModalHide"
+        >
+          팝업 자동 설정 파일 다운로드
+        </a>
+      </div>
+      <template #footer>
+        <p></p>
       </template>
     </b-modal>
   </main>
