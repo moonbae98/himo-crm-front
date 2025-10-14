@@ -111,10 +111,13 @@
               <b-button @click="hangdown" variant="primary">전화종료</b-button>
             </div>
 
-            <div class="contact-menus my-3" v-if="
+            <div
+              class="contact-menus my-3"
+              v-if="
                 user?.extNo?.locSaupjang === '1000' ||
                 user?.extNo?.locSaupjang === '1003'
-              ">
+              "
+            >
               <b-button
                 variant="outline-primary"
                 class="w-50"
@@ -513,6 +516,16 @@
                 </b-form-group>
               </div>
               <div class="item">
+                <b-form-group label="상태">
+                  <b-form-select
+                    v-model="selectedStatus"
+                    :options="statusOptions"
+                    size="sm"
+                    style="width: 120px"
+                  ></b-form-select>
+                </b-form-group>
+              </div>
+              <div class="item">
                 <b-button
                   variant="secondary"
                   size="sm"
@@ -523,10 +536,12 @@
             </div>
 
             <b-table
+              class="callback-table"
               :items="callbacklistitems"
               :fields="callbacklistfields"
               @row-clicked="callbackset"
               ref="callbackTable"
+              sticky-header="400px"
               small
             >
               <template #cell(backPhoneno)="data">
@@ -594,7 +609,7 @@
 
                 <b-form-group label="요청 전화번호">
                   <b-form-input
-                    v-model="callbacknumber"
+                    v-model="callbackinnumber"
                     type="text"
                     readonly
                     @click="selectInputText($event)"

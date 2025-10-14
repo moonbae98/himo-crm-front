@@ -252,6 +252,27 @@ body {
 }
 
 
+.callback-table th:nth-child(1),
+.callback-table td:nth-child(1){
+  width:180px !important;
+  font-size:14px !important;
+}
+.callback-table th:nth-child(2),
+.callback-table td:nth-child(2),
+.callback-table th:nth-child(3),
+.callback-table td:nth-child(3){
+  width:160px !important;
+  font-size:14px !important;
+}
+.callback-table th:nth-child(4),
+.callback-table td:nth-child(4),
+.callback-table th:nth-child(5),
+.callback-table td:nth-child(5){
+  width:140px !important;
+  font-size:14px !important;
+}
+
+
 .ellipsis-cell {
   display: block;
   width: 100%;
@@ -487,16 +508,11 @@ body {
 
 .filter-container {
   display: grid;
+  width: 100%;
   align-items: center;
   gap: 10px;
   padding: 20px 16px 0;
   margin-bottom: 20px;
-
-  > .item {
-    .btn {
-      width: 100%;
-    }
-  }
 
   .b-form-group {
     display: flex;
@@ -515,7 +531,7 @@ body {
 
 .callback-list-modal {
   .filter-container {
-    grid-template-columns: max-content 70px;
+    grid-template-columns: max-content max-content max-content;
   }
 }
 
@@ -817,7 +833,7 @@ body {
 
 .form-select-sm {
     height: 30px;
-    padding: 0 0.25rem;
+    // padding: 0 0.25rem;
 }
 
 /* Checkbox Override */
