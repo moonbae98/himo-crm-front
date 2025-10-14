@@ -295,6 +295,12 @@ export default {
           sortable: true,
         },
       ],
+      selectedStatus: 'N', // 기본값: 미확인
+      statusOptions: [
+        { value: '%', text: '전체' },
+        { value: 'Y', text: '확인' },
+        { value: 'N', text: '미확인' }
+      ],
       todayperPage: 25,
       consultcurrentPage: 1,
       consultperPage: 9,
@@ -323,11 +329,13 @@ export default {
     const response = await axios.get("./session");
     const autologinStr = localStorage.getItem("autologin");
 
+    // ipcc소켓 로그인 처리
     window.parseLogin = (data1, data2, data3, data4, data5, data6, data8) => {
       this.activeDangzic = data8;
       this.mainextno = data6;
       localStorage.setItem("mainextno", this.mainextno);
     };
+    // ipcc소켓 상담원 상태 처리
     window.parseMemberStatus = (statusCode) => {
       if (statusCode === "0" || statusCode === 0) {
         this.activeMenu = "mbtn1";
@@ -378,7 +386,7 @@ export default {
         setTimeout(() => {
           this.homeinfo_retrieve(callerNumber, callTime);
         }, 1500);
-      }
+      } `+`
       if (kind === "ID") {
         this.receiveCall(callerNumber, callTime);
       }
@@ -585,10 +593,11 @@ export default {
     },
 
     async makeCallBack() {
-      if (!this.callbacknumber?.trim()) {
+      if (!this.callbackinnumber?.trim()) {
         alert("전화번호를 입력하세요.");
         return;
       }
+      console.log(this.callbackinnumber);
       const iframe = this.$refs.ipccFrame;
       if (
         iframe &&
@@ -596,7 +605,7 @@ export default {
         typeof iframe.contentWindow.SendCommand2Socket === "function"
       ) {
         const cid = this.cid ? this.cid : "";
-        const command = `CLICKDIAL|${cid},${this.callbacknumber}`;
+        const command = `CLICKDIAL|${cid},${this.callbackinnumber}`;
         iframe.contentWindow.SendCommand2Socket(`CMD|${command}`);
       } else {
         console.log("IPCC 프레임이 준비되지 않았거나, 통신 함수가 없습니다.");
@@ -1131,7 +1140,6 @@ export default {
           tokkenNo: this.tokkenNo,
         });
         this.callbacklistitems = response.data[0].data;
-        console.log("콜백 리스트 조회 성공:", this.callbacklistitems);
       } catch (error) {
         console.error("콜백 리스트 조회 실패:", error);
       }
@@ -1143,18 +1151,19 @@ export default {
           backDept: this.user?.extNo?.locSaupjang,
         });
         this.callbacklistitems = response.data;
-        console.log("콜백 리스트 조회 성공:", this.callbacklistitems);
       } catch (error) {
         console.error("콜백 리스트 조회 실패:", error);
       }
     },
 
     async dateinputcallbacklist() {
+
       try {
         const response = await axios.post("./dateinputcallbacklist", {
           backDept: this.user?.extNo?.locSaupjang,
           startDate: this.callbackstartdt,
           endDate: this.callbackenddt,
+          callStatus: this.selectedStatus,
         });
         this.callbacklistitems = response.data;
       } catch (error) {
@@ -1208,7 +1217,7 @@ export default {
       this.callbackinnumber = this.formatPhoneNumber(item.backCallNo);
       try {
         const response = await axios.post("./crm-info", {
-          hpNo: item.backPhoneno,
+          hpNo: item.backCallNo,
         });
         this.callbackcustname = response.data.mbsViewNm || "";
       } catch (error) {
@@ -1279,17 +1288,19 @@ export default {
 
     async callbacklistretrieve() {
       this.testModal = true;
+      this.selectedStatus = "N";
       this.callbackdateinput();
-      try {
-        const response = await axios.post("./dateinputcallbacklist", {
-          backDept: this.user?.extNo?.locSaupjang,
-          startDate: this.callbackstartdt,
-          endDate: this.callbackenddt,
-        });
-        this.callbacklistitems = response.data;
-      } catch (error) {
-        console.error("콜백 리스트 조회 실패:", error);
-      }
+      this.dateinputcallbacklist();
+      // try {
+      //   const response = await axios.post("./dateinputcallbacklist", {
+      //     backDept: this.user?.extNo?.locSaupjang,
+      //     startDate: this.callbackstartdt,
+      //     endDate: this.callbackenddt,
+      //   });
+      //   this.callbacklistitems = response.data;
+      // } catch (error) {
+      //   console.error("콜백 리스트 조회 실패:", error);
+      // }
     },
 
     maincallnumberformatter(value) {

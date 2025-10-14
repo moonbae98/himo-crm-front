@@ -9,10 +9,10 @@
   "scope": "/himo-crm/",
   "icons": [
     {
-      "src": "/himo-crm/resources/vue/himocrmIcon.png",
+      "src": "/himo-crm/resources/vue/himo-crm.png",
       "sizes": "256x256",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "/himo-crm/resources/vue/Himofaviconbk.ico",
