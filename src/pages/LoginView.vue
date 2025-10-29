@@ -200,13 +200,14 @@ export default {
         localStorage.setItem(
           "loginInfo",
           JSON.stringify({
-            nodejs_connector_url: "http://211.234.122.115:8087",
-            userid: "user" + this.extNo, // 사용자 ID
-            exten: this.extNo,
-            company_id: "himo", // 회사 ID
-            passwd: "user!2322",
-            first_status: "0",
-            from_ui: "API",
+            //nodejs_connector_url: "http://211.234.122.115:8087",
+            //nodejs_connector_url: "wss://eicn.himo.com:8087",
+            //userid: "user" + this.extNo, // 사용자 ID
+            //exten: this.extNo,
+            //company_id: "himo", // 회사 ID
+            //passwd: "user!2322",
+            //first_status: "0",
+            //from_ui: "API",
 
             // nodejs_connector_url: "https://122.49.74.231:8087",
             // userid: "test" + this.extNo, // 사용자 ID
@@ -216,13 +217,14 @@ export default {
             // first_status: "0",
             // from_ui: "API",
 
-            // nodejs_connector_url: "http://122.49.74.230:8087",
-            // userid: "test9260", // 사용자 ID
-            // exten: "9260",
-            // company_id: "himo", // 회사 ID
-            // passwd: "user!2322",
-            // first_status: "0",
-            // from_ui: "API",
+            //nodejs_connector_url: "http://122.49.74.230:8087",
+            nodejs_connector_url: "wss://eicn.himo.com:8087",
+            userid: "test9260", // 사용자 ID
+            exten: "9260",
+            company_id: "himo", // 회사 ID
+            passwd: "user!2322",
+            first_status: "0",
+            from_ui: "API",
           })
         );
 
