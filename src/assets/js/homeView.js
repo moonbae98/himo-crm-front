@@ -365,27 +365,57 @@ export default {
     ) => {
       //전화받기
       if (kind === "IR") {
-        const sessionResponse = await axios.get("./session");
-        if (!sessionResponse.data || !sessionResponse.data.user) {
-          console.log("세션이 만료되어 팝업을 열지 않습니다.");
-          return;
-        }
-        this.telnumber = callerNumber;
-        this.callTime = callTime;
-        this.sendCallEventToServer(kind, callerNumber, callTime);
-        if (document.visibilityState === "visible") {
+        console.log("[IR 이벤트 발생]", { kind, callerNumber, callTime });
+
+        try {
+          const sessionResponse = await axios.get("./session");
+          console.log("[세션 응답]", sessionResponse.data);
+
+          if (!sessionResponse.data || !sessionResponse.data.user) {
+            console.warn("⚠️ 세션이 만료되어 팝업을 열지 않습니다.");
+            return;
+          }
+
+          this.telnumber = callerNumber;
+          this.callTime = callTime;
+
+          console.log("[전화번호 / 시간 설정]", this.telnumber, this.callTime);
+
+          await this.sendCallEventToServer(kind, callerNumber, callTime);
+          console.log("[서버로 콜 이벤트 전송 완료]");
+
+          // 🔍 가시 상태 확인
+          console.log("[브라우저 가시 상태]", document.visibilityState);
+
+          if (document.visibilityState === "visible") {
+            console.log("🟢 현재 탭이 활성 상태 → CRM 모달 띄움");
+            setTimeout(() => {
+              console.log("➡️ showCrmInfomodal 실행");
+              this.showCrmInfomodal(callerNumber, callTime);
+            }, 300);
+          } else {
+            console.log("🟠 현재 탭이 비활성 상태 → 팝업 + 알림 띄움");
+            setTimeout(() => {
+              console.log("➡️ showCrmInfo 실행");
+              this.showCrmInfo(callerNumber, callTime);
+
+              console.log("➡️ showNotification 실행 시도");
+              try {
+                this.showNotification(callerNumber, callTime);
+                console.log("✅ showNotification 함수 호출 완료");
+              } catch (e) {
+                console.error("❌ showNotification 호출 중 에러:", e);
+              }
+            }, 300);
+          }
+
           setTimeout(() => {
-            this.showCrmInfomodal(callerNumber, callTime);
-          }, 300);
-        } else {
-          setTimeout(() => {
-            this.showCrmInfo(callerNumber, callTime);
-            this.showNotification(callerNumber, callTime);
-          }, 300);
+            console.log("📞 homeinfo_retrieve 실행");
+            this.homeinfo_retrieve(callerNumber, callTime);
+          }, 1500);
+        } catch (err) {
+          console.error("🔥 [IR 이벤트 처리 중 오류]", err);
         }
-        setTimeout(() => {
-          this.homeinfo_retrieve(callerNumber, callTime);
-        }, 1500);
       } `+`
       if (kind === "ID") {
         this.receiveCall(callerNumber, callTime);
@@ -1543,20 +1573,29 @@ export default {
       return `${datePart}  ${hour}시${minute}분${second}초`;
     },
 
+
     async showNotification(callerNumber, callTime) {
+      console.log("showNotification 진입");
       if ("Notification" in window && Notification.permission === "granted") {
         await this.NotifiCrmInfo(callerNumber, callTime);
         console.log(this.crminfo);
-
+        console.log("--- CRM Info Debug Start ---");
+        console.log("callerNumber:", callerNumber);
+        console.log("crminfo 객체:", this.crminfo); // 이 객체의 내용이 무엇인지 반드시 확인해야 함
+        console.log("callCustname 값:", this.crminfo ? this.crminfo.callCustname : "객체 없음");
+        console.log("--- CRM Info Debug End ---");
+        
         if (this.crminfo.callCustname) {
+          /*
           const notification = new Notification(
             `고객명 :${this.crminfo.callCustname}`,
             {
-              body: `전화지점 :${
-                this.crminfo.indeptName
-              }\n발신번호: ${this.formatPhoneNumber(
+              body: `발신번호: ${this.formatPhoneNumber(
                 callerNumber
-              )}\n시간: ${this.formatCallTime(callTime)}\n최종예약내역: ${
+              )}\n전화지점 :${
+                this.crminfo.indeptName
+              }\n시간: ${this.formatCallTime(callTime)}
+              \n최종예약내역: ${
                 this.crminfo.lastRsrvName || "없음"
               }`,
               icon: "/favicon.ico", // 아이콘 경로 설정
@@ -1566,7 +1605,39 @@ export default {
               silent: false,
             }
           );
+          */
 
+
+          // 고객명을 간결하게 정의 (없으면 "미등록 고객")
+          const custName = this.crminfo?.callCustname || "미등록 고객";
+          const branchName = this.crminfo?.indeptName || "정보 없음";
+          const lastRsrv = this.crminfo?.lastRsrvName || "없음";
+          const formattedCallTime = this.formatCallTime(callTime);
+          const formattedCallerNumber = this.formatPhoneNumber(callerNumber);
+          
+          // 알림 제목은 고객명 유무에 따라 변경
+          const notificationTitle = custName === "미등록 고객" 
+                                  ? `📞 새 전화 수신 (${custName})` 
+                                  : `고객명: ${custName}`;
+
+          // 알림 본문 (줄 수를 최소화하고 핵심 정보만 포함)
+          const notificationBody = 
+            `발신번호: ${formattedCallerNumber}\n지점: ${branchName}\n시간: ${formattedCallTime}\n예약: ${lastRsrv}`;
+
+          const notification = new Notification(
+            notificationTitle,
+            {
+              body: notificationBody,
+              // 아이콘 및 뱃지 경로는 프로젝트에 맞게 확인 및 수정
+              // /himo-crm/resources/vue/himo-crm.png 경로를 사용하는 것이 더 명확할 수 있습니다.
+              // icon: "/himo-crm/resources/vue/himo-crm.png", 
+              icon: "/favicon.ico", 
+              // badge: "/path/to/badge-icon.png", // 뱃지 경로는 선택 사항
+              tag: "incoming-call", // 중복 알림 방지 태그
+              requireInteraction: true, // 사용자가 닫기 전까지 유지
+              silent: false, // 소리 있음
+            }
+          );
           setTimeout(() => {
             notification.close();
           }, 8000);
@@ -1580,6 +1651,7 @@ export default {
 
           return notification;
         } else {
+          /*
           const notification = new Notification(
             `전화지점 :${this.crminfo.indeptName}`,
             {
@@ -1591,7 +1663,38 @@ export default {
               silent: false,
             }
           );
+          */
+          // 고객명을 간결하게 정의 (없으면 "미등록 고객")
+          const custName = this.crminfo?.callCustname || "미등록 고객";
+          const branchName = this.crminfo?.indeptName || "정보 없음";
+          const lastRsrv = this.crminfo?.lastRsrvName || "없음";
+          const formattedCallTime = this.formatCallTime(callTime);
+          const formattedCallerNumber = this.formatPhoneNumber(callerNumber);
+          
+          // 알림 제목은 고객명 유무에 따라 변경
+          const notificationTitle = custName === "미등록 고객" 
+                                  ? `📞 새 전화 수신 (${custName})` 
+                                  : `고객명: ${custName}`;
 
+          // 알림 본문 (줄 수를 최소화하고 핵심 정보만 포함)
+          const notificationBody = 
+            `발신번호: ${formattedCallerNumber}\n지점: ${branchName}\n시간: ${formattedCallTime}\n예약: ${lastRsrv}`;
+
+          const notification = new Notification(
+            notificationTitle,
+            {
+              body: notificationBody,
+              // 아이콘 및 뱃지 경로는 프로젝트에 맞게 확인 및 수정
+              // /himo-crm/resources/vue/himo-crm.png 경로를 사용하는 것이 더 명확할 수 있습니다.
+              // icon: "/himo-crm/resources/vue/himo-crm.png", 
+              icon: "/favicon.ico", 
+              // badge: "/path/to/badge-icon.png", // 뱃지 경로는 선택 사항
+              tag: "incoming-call", // 중복 알림 방지 태그
+              requireInteraction: true, // 사용자가 닫기 전까지 유지
+              silent: false, // 소리 있음
+            }
+          );
+          
           setTimeout(() => {
             notification.close();
           }, 8000);
@@ -1607,6 +1710,111 @@ export default {
         }
       }
     },
+
+    /* ===========================================================
+      완전 커스텀 알림창 (스타일 자유 설정 가능)
+    =========================================================== */
+    /*
+    async showNotification(callerNumber, callTime) {
+      await this.NotifiCrmInfo(callerNumber, callTime);
+      const info = this.crminfo || {};
+
+      const custName = info.callCustname || "미등록 고객";
+      const branch = info.indeptName || "지점정보 없음";
+      const rsrv = info.lastRsrvName || "없음";
+      const phone = this.formatPhoneNumber(callerNumber);
+      const time = this.formatCallTime(callTime);
+      
+      console.log("showNotification 내부로 진입");
+      if (document.visibilityState === "hidden") {
+        console.log("비활성탭이라 OS알림.");
+        //  비활성 탭 → OS 알림
+        if ("Notification" in window && Notification.permission === "granted") {
+          const notification = new Notification("📞 새 전화 수신", {
+            body: `고객명: ${custName}\n지점: ${branch}\n번호: ${phone}\n시간: ${time}\n예약: ${rsrv}`,
+            icon: "/himo-crm/resources/vue/himo-crm.png",
+            requireInteraction: true, // 사용자가 직접 닫을 때까지 유지
+          });
+
+          notification.onclick = () => {
+            window.focus();
+            this.showCrmInfomodal(callerNumber, callTime);
+            notification.close();
+          };
+        }
+      } else {
+        console.log("활성 탭 → 커스텀 HTML 알림 (항상 우측 하단)");
+        //  활성 탭 → 커스텀 HTML 알림 (항상 우측 하단)
+        let container = document.getElementById("customNotifyContainer");
+        if (!container) {
+          container = document.createElement("div");
+          container.id = "customNotifyContainer";
+          Object.assign(container.style, {
+            position: "fixed",
+            bottom: "20px",
+            right: "20px",
+            zIndex: "99999",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-end",
+            gap: "10px",
+          });
+          document.body.appendChild(container);
+        }
+
+        const notify = document.createElement("div");
+        Object.assign(notify.style, {
+          background: "linear-gradient(135deg, #2b5876, #4e4376)",
+          color: "#fff",
+          borderRadius: "12px",
+          boxShadow: "0 8px 20px rgba(0,0,0,0.4)",
+          padding: "16px 20px",
+          width: "320px",
+          opacity: "0",
+          transform: "translateY(20px)",
+          transition: "all 0.3s ease",
+          cursor: "pointer",
+          zIndex: "100000",
+        });
+
+        notify.innerHTML = `
+          <div style="display:flex;align-items:flex-start;gap:12px;">
+            <img src="/himo-crm/resources/vue/himo-crm.png"
+                style="width:48px;height:48px;border-radius:10px;">
+            <div style="flex:1;">
+              <h4 style="margin:0;font-size:16px;">📞 새 전화 수신</h4>
+              <p style="margin:4px 0 0;">고객명: <b>${custName}</b></p>
+              <p style="margin:2px 0;">번호: ${phone}</p>
+              <p style="margin:2px 0;">지점: ${branch}</p>
+              <p style="margin:2px 0;">시간: ${time}</p>
+            </div>
+          </div>
+        `;
+
+        container.appendChild(notify);
+        notify.animate(
+          [
+            { opacity: 0, transform: "translateY(20px)" },
+            { opacity: 1, transform: "translateY(0)" },
+          ],
+          { duration: 300, fill: "forwards" }
+        );
+
+        // 8초 뒤 사라지게
+        setTimeout(() => {
+          notify.animate(
+            [
+              { opacity: 1, transform: "translateY(0)" },
+              { opacity: 0, transform: "translateY(20px)" },
+            ],
+            { duration: 400, fill: "forwards" }
+          ).onfinish = () => notify.remove();
+        }, 8000);
+      }
+    }
+    */
+
+
 
     handleBrowserClose(event) {
       // 새로고침인지 확인
