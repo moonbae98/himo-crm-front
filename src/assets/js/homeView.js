@@ -396,10 +396,11 @@ export default {
           } else {
             console.log("🟠 현재 탭이 비활성 상태 → 팝업 + 알림 띄움");
             setTimeout(() => {
-              console.log("➡️ showCrmInfo 실행");
-              this.showCrmInfo(callerNumber, callTime);
+              //20251105 팝업 막음 --> 알림만 띄움
+              //console.log("➡️ showCrmInfo 실행");
+              //this.showCrmInfo(callerNumber, callTime);
 
-              console.log("➡️ showNotification 실행 시도");
+              //console.log("➡️ showNotification 실행 시도");
               try {
                 this.showNotification(callerNumber, callTime);
                 console.log("✅ showNotification 함수 호출 완료");
@@ -1611,7 +1612,8 @@ export default {
           // 고객명을 간결하게 정의 (없으면 "미등록 고객")
           const custName = this.crminfo?.callCustname || "미등록 고객";
           const branchName = this.crminfo?.indeptName || "정보 없음";
-          const lastRsrv = this.crminfo?.lastRsrvName || "없음";
+          //const lastRsrv = this.crminfo?.lastRsrvName || "없음";
+          const lastRsrv = this.crminfo?.rsrvDt || "없음";
           const formattedCallTime = this.formatCallTime(callTime);
           const formattedCallerNumber = this.formatPhoneNumber(callerNumber);
           
@@ -1622,7 +1624,7 @@ export default {
 
           // 알림 본문 (줄 수를 최소화하고 핵심 정보만 포함)
           const notificationBody = 
-            `발신번호: ${formattedCallerNumber}\n지점: ${branchName}\n시간: ${formattedCallTime}\n예약: ${lastRsrv}`;
+            `발신번호: ${formattedCallerNumber}\n전화지점: ${branchName}\n시간: ${formattedCallTime}\n최종예약일자: ${lastRsrv}`;
 
           const notification = new Notification(
             notificationTitle,
@@ -1630,8 +1632,8 @@ export default {
               body: notificationBody,
               // 아이콘 및 뱃지 경로는 프로젝트에 맞게 확인 및 수정
               // /himo-crm/resources/vue/himo-crm.png 경로를 사용하는 것이 더 명확할 수 있습니다.
-              // icon: "/himo-crm/resources/vue/himo-crm.png", 
-              icon: "/favicon.ico", 
+              icon: "/himo-crm/resources/vue/himo-crm.png", 
+              //icon: "/favicon.ico", 
               // badge: "/path/to/badge-icon.png", // 뱃지 경로는 선택 사항
               tag: "incoming-call", // 중복 알림 방지 태그
               requireInteraction: true, // 사용자가 닫기 전까지 유지
@@ -1640,7 +1642,7 @@ export default {
           );
           setTimeout(() => {
             notification.close();
-          }, 8000);
+          }, 10000);
 
           // 알림 클릭 시 창 포커스
           notification.onclick = () => {
@@ -1667,7 +1669,8 @@ export default {
           // 고객명을 간결하게 정의 (없으면 "미등록 고객")
           const custName = this.crminfo?.callCustname || "미등록 고객";
           const branchName = this.crminfo?.indeptName || "정보 없음";
-          const lastRsrv = this.crminfo?.lastRsrvName || "없음";
+          //const lastRsrv = this.crminfo?.lastRsrvName || "없음";
+          const lastRsrv = this.crminfo?.rsrvDt || "없음";
           const formattedCallTime = this.formatCallTime(callTime);
           const formattedCallerNumber = this.formatPhoneNumber(callerNumber);
           
@@ -1678,7 +1681,7 @@ export default {
 
           // 알림 본문 (줄 수를 최소화하고 핵심 정보만 포함)
           const notificationBody = 
-            `발신번호: ${formattedCallerNumber}\n지점: ${branchName}\n시간: ${formattedCallTime}\n예약: ${lastRsrv}`;
+            `발신번호: ${formattedCallerNumber}\n전화지점: ${branchName}\n시간: ${formattedCallTime}\n최종예약일자: ${lastRsrv}`;
 
           const notification = new Notification(
             notificationTitle,
@@ -1686,8 +1689,8 @@ export default {
               body: notificationBody,
               // 아이콘 및 뱃지 경로는 프로젝트에 맞게 확인 및 수정
               // /himo-crm/resources/vue/himo-crm.png 경로를 사용하는 것이 더 명확할 수 있습니다.
-              // icon: "/himo-crm/resources/vue/himo-crm.png", 
-              icon: "/favicon.ico", 
+              icon: "/himo-crm/resources/vue/himo-crm.png", 
+              //icon: "/favicon.ico", 
               // badge: "/path/to/badge-icon.png", // 뱃지 경로는 선택 사항
               tag: "incoming-call", // 중복 알림 방지 태그
               requireInteraction: true, // 사용자가 닫기 전까지 유지
@@ -1697,7 +1700,7 @@ export default {
           
           setTimeout(() => {
             notification.close();
-          }, 8000);
+          }, 10000);
 
           // 알림 클릭 시 창 포커스
           notification.onclick = () => {
