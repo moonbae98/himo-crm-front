@@ -9,7 +9,7 @@
   "scope": "/himo-crm/",
   "icons": [
     {
-      "src": "/himo-crm/resources/vue/himo-crm.png",
+      "src": "/himo-crm/resources/vue/himo-crmlogo.png",
       "sizes": "256x256",
       "type": "image/png",
       "purpose": "any"
