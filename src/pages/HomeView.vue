@@ -1,5 +1,17 @@
-<style src="../assets/styles/homeview.css"></style>
-<script src="../assets/js/homeView.js"></script>
+<script>
+/*
+  homeView.js 파일의 default export를 명시적 이름으로 가져옵니다.
+  이렇게 하면 Vue 런타임이 undefined로 인식하지 않아 "_withMods" 오류를 방지합니다.
+*/
+import homeViewDef from "../assets/js/homeView.js";
+import "../assets/styles/homeview.css";
+
+// Vue 컴포넌트로 export
+export default homeViewDef;
+</script>
+
+
+
 <template>
   <!-- Header -->
   <header class="header">
