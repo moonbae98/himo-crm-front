@@ -1632,7 +1632,7 @@ export default {
               body: notificationBody,
               // 아이콘 및 뱃지 경로는 프로젝트에 맞게 확인 및 수정
               // /himo-crm/resources/vue/himo-crm.png 경로를 사용하는 것이 더 명확할 수 있습니다.
-              icon: "/himo-crm/resources/vue/himo-crm.png", 
+              icon: "/himo-crm/resources/vue/himo-crmlogo.png", 
               //icon: "/favicon.ico", 
               // badge: "/path/to/badge-icon.png", // 뱃지 경로는 선택 사항
               tag: "incoming-call", // 중복 알림 방지 태그
@@ -1689,7 +1689,7 @@ export default {
               body: notificationBody,
               // 아이콘 및 뱃지 경로는 프로젝트에 맞게 확인 및 수정
               // /himo-crm/resources/vue/himo-crm.png 경로를 사용하는 것이 더 명확할 수 있습니다.
-              icon: "/himo-crm/resources/vue/himo-crm.png", 
+              icon: "/himo-crm/resources/vue/himo-crmlogo.png", 
               //icon: "/favicon.ico", 
               // badge: "/path/to/badge-icon.png", // 뱃지 경로는 선택 사항
               tag: "incoming-call", // 중복 알림 방지 태그
