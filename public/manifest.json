@@ -1,6 +1,6 @@
 {
-  "name": "Himo CRM System",
-  "short_name": "Himo CRM",
+  "name": "Hi-MO CRM System",
+  "short_name": "Hi-MO CRM",
   "description": "하이모 CRM 관리 시스템",
   "start_url": "/himo-crm/",
   "display": "standalone",
@@ -15,9 +15,10 @@
       "purpose": "any"
     },
     {
-      "src": "/himo-crm/resources/vue/Himofaviconbk.ico",
+      "src": "/himo-crm/resources/vue/himo-crmheader.ico",
       "sizes": "16x16",
       "type": "image/x-icon"
     }
   ]
 }
+
