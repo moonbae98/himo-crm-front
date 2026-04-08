@@ -496,7 +496,7 @@ export default homeViewDef;
         >
       </template>
     </b-modal>
-
+<!--123-->
     <!-- 콜백리스트 모달 -->
     <b-modal
       v-model:show="testModal"
@@ -609,6 +609,7 @@ export default homeViewDef;
                   />
                 </b-form-group>
               </div>
+
 
               <div class="customer-info">
                 <b-form-group label="고객명">
